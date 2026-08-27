@@ -8,7 +8,7 @@ A local-first video review tool. Load a video in your browser, drop time-coded r
 
 ## Usage
 
-1. Open the site `https://<your-account>.github.io/<repo>/regard.html` (once deployed).
+1. Open the site [REGARD](https://kane1a.github.io/REGARD/regard.html)
 2. Click "Open Video" to load a local video.
 3. At the moment that needs a change, click "Add Mark" to stamp the timecode, write a note, and pick a severity (Must Fix / Suggested / FYI).
 4. For visual proof, use the screenshot & annotation tools to circle the issue.
