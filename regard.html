@@ -430,10 +430,13 @@
   .sev-pick label:has(input:checked){border-color:var(--accent);background:rgba(200,169,126,.16);color:var(--text);font-weight:500}
   .dot-r{width:7px;height:7px;border-radius:50%;display:inline-block}
   .lbl{font-size:11.5px;color:var(--muted);margin:12px 0 5px;display:flex;align-items:center;gap:5px}
-  .ref-area{border:1px dashed var(--border);border-radius:var(--radius-sm);padding:7px;margin-top:5px;min-height:14px}
+  .ref-area{border:1px dashed var(--border);border-radius:var(--radius-sm);padding:7px;margin-top:5px;min-height:14px;max-height:188px;overflow-y:auto;scrollbar-width:none;-ms-overflow-style:none}
+  .ref-area::-webkit-scrollbar{width:0;height:0;display:none}
   .ref-item{display:flex;align-items:center;gap:7px;font-size:12px;background:var(--glass-hi);border-radius:7px;padding:5px 8px;margin-top:4px}
   .ref-err{margin-top:5px;font-size:11.5px;color:#ff8a80;background:rgba(224,101,90,.14);border:1px solid rgba(224,101,90,.4);border-radius:8px;padding:6px 9px}
   .ref-item a{color:var(--accent);text-decoration:none;word-break:break-all;flex:1}
+  .ref-item .ref-thumb{width:30px;height:30px;object-fit:cover;border-radius:5px;flex-shrink:0;background:#000;display:block}
+  .ref-item .ref-name{color:var(--text);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .ref-rm{background:none;border:none;color:var(--muted);padding:2px;border-radius:5px}
   .ref-rm:hover{color:var(--danger);background:rgba(224,101,90,.14);transform:none;box-shadow:none}
 
@@ -1523,8 +1526,11 @@ function grabFrame(){
 function renderPendingRefs(){
   $('refArea').innerHTML=pendingRefs.map((r,i)=>r.type==='url'
     ?`<div class="ref-item"><svg class="ic" style="width:12px;height:12px"><use href="#i-link"/></svg><a href="${esc(r.url)}" target="_blank">${esc(r.url)}</a><button class="ref-rm" data-i="${i}"><svg class="ic" style="width:11px;height:11px"><use href="#i-close"/></svg></button></div>`
-    :`<div class="ref-item"><img src="${r.dataURL}"><span>${T('refImg')}</span><button class="ref-rm" data-i="${i}"><svg class="ic" style="width:11px;height:11px"><use href="#i-close"/></svg></button></div>`
+    :`<div class="ref-item"><img class="ref-thumb" src="${r.dataURL}" alt=""><span class="ref-name">${esc(r.name||T('refImg'))}</span><button class="ref-rm" data-i="${i}"><svg class="ic" style="width:11px;height:11px"><use href="#i-close"/></svg></button></div>`
   ).join('');
+  const ra=$('refArea');
+  // 保險：只有當參考內容真的超出預覽高度時才允許滾動（平常 overflow:hidden，完全無滾動條）
+  requestAnimationFrame(()=>{ ra.style.overflowY = ra.scrollHeight>ra.clientHeight+2 ? 'auto':'hidden'; });
   $('refArea').querySelectorAll('.ref-rm').forEach(b=>b.onclick=()=>{pendingRefs.splice(+b.dataset.i,1);renderPendingRefs()});
 }
 $('dlgRefUrl').addEventListener('keydown',e=>{
@@ -1549,7 +1555,7 @@ $('dlgRefPick').onclick=()=>$('dlgRefFile').click();
 $('dlgRefFile').onchange=e=>{
   [...e.target.files].forEach(f=>{
     const rd=new FileReader();
-    rd.onload=()=>{pendingRefs.push({type:'img',dataURL:rd.result});renderPendingRefs()};
+    rd.onload=()=>{pendingRefs.push({type:'img',dataURL:rd.result,name:f.name});renderPendingRefs()};
     rd.readAsDataURL(f);
   });
   e.target.value='';
@@ -1579,6 +1585,7 @@ function addMark(){
   pendingShot=pendingBase;
   pendingStrokes=[];
   pendingRefs=[];
+  $('dlgRefUrl').value='';$('dlgRefUrl').style.borderColor='';$('refErr').style.display='none';
   $('dlgTc').textContent=T('tcLabel')+' '+fmt(pendingT);
   $('dlgNote').value='';
   document.querySelector('input[name=sev][value="必須修改"]').checked=true;
@@ -1760,33 +1767,40 @@ async function exportPdf(){
   const PW=doc.internal.pageSize.getWidth(),PH=doc.internal.pageSize.getHeight();
   const M=17, CW=PW-M*2;
   const hasCJK=s=>/[㐀-鿿豈-﫿＀-￯]/.test(s);
-  // 精品字型：中文 Noto Serif TC（襯線）、拉丁標題 Cinzel、拉丁內文 Cormorant Garamond
+  // 易讀字型：中文 Noto Sans TC（黑體）、拉丁 Inter（現代無襯線）
+  // 目標是「方便別人閱讀」，不是精品裝飾風，所以全部採用高易讀性的無襯線字型
   // 字型已內嵌於 fonts/fonts.js（window.REGARD_FONTS），完全離線可用（含 file:// 雙擊開啟）
   // jsPDF 會自動只子集化用到的字，PDF 體積不會爆增；文字皆為可選取/搜尋的真文字
   // 關鍵：每次匯出都會 new 一個新 doc，所以字型必須「每次都註冊進當下的 doc」，
   //       否則第二次匯出（新 doc）沒有字型 → 中文變亂碼。
+  // 註：normal / bold 各自使用獨立字型檔，確保粗體是真的粗體（非合成）。
   const FONT_B64={
-    NotoSerifTC:()=>window.REGARD_FONTS&&window.REGARD_FONTS.NotoSerifTC,
-    Cinzel:()=>window.REGARD_FONTS&&window.REGARD_FONTS.Cinzel,
-    Cormorant:()=>window.REGARD_FONTS&&window.REGARD_FONTS.Cormorant
+    NotoSansTC:()=>window.REGARD_FONTS&&window.REGARD_FONTS.NotoSansTC,
+    NotoSansTCBold:()=>window.REGARD_FONTS&&window.REGARD_FONTS.NotoSansTCBold,
+    Inter:()=>window.REGARD_FONTS&&window.REGARD_FONTS.Inter,
+    InterBold:()=>window.REGARD_FONTS&&window.REGARD_FONTS.InterBold
   };
   function ensureFonts(){
     try{
-      const defs=[['NotoSerifTC.ttf','NotoSerifTC'],['Cinzel.ttf','Cinzel'],['Cormorant.ttf','Cormorant']];
-      for(const [vfs,alias] of defs){
-        const b64=FONT_B64[alias]();
-        if(!b64)throw new Error('font '+alias+' missing');
+      const defs=[
+        ['NotoSansTC.ttf','NotoSansTC','NotoSansTC','normal'],
+        ['NotoSansTCBold.ttf','NotoSansTCBold','NotoSansTC','bold'],
+        ['Inter.ttf','Inter','Inter','normal'],
+        ['InterBold.ttf','InterBold','Inter','bold']
+      ];
+      for(const [vfs,key,alias,style] of defs){
+        const b64=FONT_B64[key]();
+        if(!b64)throw new Error('font '+key+' missing');
         doc.addFileToVFS(vfs,b64);
-        doc.addFont(vfs,alias,'normal');doc.addFont(vfs,alias,'bold');
+        doc.addFont(vfs,alias,style);
       }
       return true;
     }catch(e){return false;}
   }
-  // 字型選擇：含中文→襯線中文；純拉丁→Cormorant（正式文字字型，含數字/符號）；
-  // Cinzel 僅用於 REGARD 標準字（純大寫字母，裝飾性顯示字，不適合內文）
-  function setCN(style,size){doc.setFont('NotoSerifTC',style||'normal');doc.setFontSize(size);}
-  function setLat(style,size){doc.setFont('Cormorant',style||'normal');doc.setFontSize(size);}
-  function setBody(style,size){doc.setFont('Cormorant',style||'normal');doc.setFontSize(size);}
+  // 字型選擇：含中文→Noto Sans TC（黑體，易讀）；純拉丁→Inter（現代無襯線，數字/符號清晰）
+  function setCN(style,size){doc.setFont('NotoSansTC',style||'normal');doc.setFontSize(size);}
+  function setLat(style,size){doc.setFont('Inter',style||'normal');doc.setFontSize(size);}
+  function setBody(style,size){doc.setFont('Inter',style||'normal');doc.setFontSize(size);}
   function setF(text,style,size){
     if(hasCJK(text))setCN(style,size);else setLat(style,size);
   }
@@ -1932,10 +1946,16 @@ async function exportPdf(){
     for(let p=1;p<=total;p++){
       doc.setPage(p);
       drawWatermark();
-      doc.setFont('Cinzel','normal');doc.setFontSize(11);doc.setTextColor(...GOLD);
-      doc.text('R E G A R D',M,PH-9.5);
-      setBody('normal',5);doc.setTextColor(...GREY);
-      doc.text('THE ART OF PERSPECTIVE',M,PH-6.0);
+      // 左下角品牌標準字：與頁首左上角一致（REGARD / THE ART OF PERSPECTIVE），且透明度同右上方 LOGO 浮水印
+      try{
+        doc.saveGraphicsState();
+        if(doc.GState)doc.setGState(new doc.GState({opacity:0.055}));
+        setBody('bold',9.5);doc.setTextColor(...GOLD);
+        doc.text('REGARD',M,PH-10.5);
+        setBody('normal',5.5);doc.setTextColor(...GREY);
+        doc.text('THE ART OF PERSPECTIVE',M,PH-7.2);
+        doc.restoreGraphicsState();
+      }catch(e){}
       setBody('normal',8);doc.setTextColor(...GREY);
       doc.text(String(p)+' / '+total,PW-M,PH-8,{align:'right'});
     }
@@ -1946,6 +1966,17 @@ async function exportPdf(){
 }
 
 /* ---- Excel：圖片保持 16:9 原比例（依影片實際寬高比計算） ---- */
+// ExcelJS 瀏覽器版的 addImage 不支援 base64 字串（會報 Unsupported media），
+  // 統一改用 buffer（Uint8Array）方式加入圖片
+  const xlsAddImg=async(wb,dataURL,ext)=>{
+    if(!dataURL||!String(dataURL).startsWith('data:'))return null;
+    try{
+      const b64=dataURL.substring(dataURL.indexOf(',')+1);
+      const bin=atob(b64);const bytes=new Uint8Array(bin.length);
+      for(let i=0;i<bin.length;i++)bytes[i]=bin.charCodeAt(i);
+      return wb.addImage({buffer:bytes,extension:ext});
+    }catch(e){return null;}
+  };
 async function exportXlsx(){
   if(typeof ExcelJS==='undefined')return appAlert(T('xlsxFail'));
   const wb=new ExcelJS.Workbook();
@@ -1970,28 +2001,28 @@ async function exportXlsx(){
   ws.mergeCells('A1:F1');
   const brandCell=ws.getCell('A1');
   brandCell.value={richText:[
-    {text:'REGARD',font:{name:'Georgia',size:15,bold:true,color:{argb:'FFC8A97E'}}},
-    {text:'   THE ART OF PERSPECTIVE',font:{name:'Calibri',size:8,color:{argb:'FF8F887C'}}},
-    {text:'\n'+proj(),font:{name:'Calibri',size:11,bold:true,color:{argb:'FFF2EFE7'}}}
+    {text:'REGARD',font:{name:'Cinzel',size:16,bold:true,color:{argb:'FFC8A24B'}}},
+    {text:'   THE ART OF PERSPECTIVE',font:{name:'Cinzel',size:8,color:{argb:'FF9A8B6A'}}},
+    {text:'\n'+proj(),font:{name:'Calibri',size:11,bold:true,color:{argb:'FF3A352E'}}}
   ]};
   brandCell.alignment={vertical:'middle',horizontal:'left',wrapText:true,indent:5};
-  brandCell.fill={type:'pattern',pattern:'solid',fgColor:{argb:'FF1A1713'}};
-  brandCell.font={name:'Georgia',size:15,bold:true,color:{argb:'FFF2EFE7'},};
+  brandCell.fill={type:'pattern',pattern:'solid',fgColor:{argb:'FFF2E8D5'}};
+  brandCell.font={name:'Cinzel',size:16,bold:true,color:{argb:'FFC8A24B'},};
   brandCell.protection={locked:true};
   try{
-    const lid=wb.addImage({base64:REGARD_LOGO.substring(REGARD_LOGO.indexOf(',')+1),extension:'png'});
-    ws.addImage(lid,{tl:{col:0,row:0,colOff:6*9525,rowOff:6*9525},
+    const lid=await xlsAddImg(wb,REGARD_LOGO,'png');
+    if(lid)ws.addImage(lid,{tl:{col:0,row:0,colOff:6*9525,rowOff:6*9525},
                      ext:{width:Math.round(46*REGARD_LOGO_AR),height:46},editAs:'absolute'});
   }catch(e){}
   const hRow=ws.getRow(2);
   hRow.height=24;
-  hRow.font={bold:true,color:{argb:'FFF2EFE7'},size:11};
-  hRow.fill={type:'pattern',pattern:'solid',fgColor:{argb:'FF1A1713'}};
+  hRow.font={bold:true,color:{argb:'FF3A352E'},size:11};
+  hRow.fill={type:'pattern',pattern:'solid',fgColor:{argb:'FFF7F1E2'}};
   hRow.alignment={vertical:'middle'};
   hRow.eachCell(c=>{c.border={bottom:{style:'medium',color:{argb:'FFC8A97E'}}};c.protection={locked:true}});
   ws.views=[{state:'frozen',ySplit:2}];
-  ws.headerFooter={oddFooter:'&L&"Calibri"&8&KC8A97E REGARD — The Art of Perspective&R&8&K8F887C &P / &N',
-                   evenFooter:'&L&"Calibri"&8&KC8A97E REGARD — The Art of Perspective&R&8&K8F887C &P / &N'};
+  ws.headerFooter={oddFooter:'&L&"Calibri"&8&KC8A24B REGARD — The Art of Perspective&R&8&K9A8B6A &P / &N',
+                   evenFooter:'&L&"Calibri"&8&KC8A24B REGARD — The Art of Perspective&R&8&K9A8B6A &P / &N'};
 
   const SEVFILL={'必須修改':'FFFDECEA','建議修改':'FFFFF6E5','僅提醒':'FFEAF2FD'};
   const SEVFONT={'必須修改':'FFC0392B','建議修改':'FFA35F00','僅提醒':'FF0058B0'};
@@ -2024,8 +2055,8 @@ async function exportXlsx(){
 
     // 截圖（F 欄）
     try{
-      const sid=wb.addImage({base64:m.shot.substring(m.shot.indexOf(',')+1),extension:'jpeg'});
-      ws.addImage(sid,{tl:{col:5,row:r-1},ext:{width:IMG_W,height:imgH},editAs:'oneCell'});
+      const sid=await xlsAddImg(wb,m.shot,'jpeg');
+      if(sid)ws.addImage(sid,{tl:{col:5,row:r-1},ext:{width:IMG_W,height:imgH},editAs:'oneCell'});
     }catch(err){}
     // 參考圖片：獨立成行，放在連結文字下方，絕不與其重疊
     for(const d of refDims){
@@ -2036,8 +2067,8 @@ async function exportXlsx(){
       try{
         const b64=d.ref.dataURL.substring(d.ref.dataURL.indexOf(',')+1);
         const ext=d.ref.dataURL.includes('image/png')?'png':'jpeg';
-        const rid=wb.addImage({base64:b64,extension:ext});
-        ws.addImage(rid,{tl:{col:4,row:r-1},ext:{width:d.w,height:d.h},editAs:'oneCell'});
+        const rid=await xlsAddImg(wb,b64,ext);
+        if(rid)ws.addImage(rid,{tl:{col:4,row:r-1},ext:{width:d.w,height:d.h},editAs:'oneCell'});
       }catch(err){}
       ws.getRow(r).eachCell(c=>{if(c.col!==6)c.border={bottom:{style:'thin',color:{argb:'FFE0DED9'}}}});
     }
