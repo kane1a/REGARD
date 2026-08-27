@@ -1,4 +1,4 @@
-# 凝視 REGARD
+# REGARD
 
 > The Art of Perspective — see the essence of the image, define a higher standard.
 
