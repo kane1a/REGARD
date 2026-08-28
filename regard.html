@@ -177,6 +177,12 @@
   .dd-item.sel:hover::after{color:#171410}
   .dd-item small{color:var(--muted);margin-left:auto}
   .dd-item:hover small{color:rgba(255,255,255,.75)}
+  .dd-group{margin-top:4px}
+  .dd-group:first-child{margin-top:0}
+  .dd-glabel{
+    font-size:10.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;
+    color:var(--muted);padding:7px 12px 3px;opacity:.8;
+  }
 
   /* ---------- Layout ---------- */
   main{flex:1;display:flex;min-height:0;gap:12px;padding:12px;overflow:hidden}
@@ -218,9 +224,14 @@
   .controls{
     display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:10px 14px;min-width:0;
     background:var(--glass);backdrop-filter:blur(40px) saturate(200%);-webkit-backdrop-filter:blur(40px) saturate(200%);
-    border:.5px solid var(--border2);border-radius:100px;
+    border:.5px solid var(--border2);border-radius:20px;
     box-shadow:var(--shadow),inset 0 1px 0 rgba(255,255,255,.13);
   }
+  /* 控制列內所有互動元素統一高度，避免 1–4px 高度差（強迫症對齊） */
+  .controls>button,.controls>#timecode,.controls .xsel-btn{
+    height:36px;box-sizing:border-box;align-items:center;
+  }
+  .controls .xsel{align-self:center}
   #timecode{
     font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;font-size:14px;font-weight:600;
     color:var(--accent2);width:128px;text-align:center;letter-spacing:.03em;padding:6px 10px;border-radius:10px;
@@ -299,6 +310,113 @@
   #markCount{
     background:var(--grad-gold);color:#171410;font-size:11px;font-weight:600;border-radius:20px;
     padding:2px 9px;min-width:24px;text-align:center;
+  }
+
+  /* 手機直向：影片區／修改清單改上下堆疊，避免固定寬度側欄把影片擠不見（放在 .marks-col 主定義之後以覆蓋 width:392px） */
+  @media (max-width:700px){
+    main{flex-direction:column;overflow-y:auto;padding:8px;gap:8px}
+    .player-col{flex:none;width:100%;min-height:0}
+    #dropzone{min-height:170px;max-height:40vh}
+    /* 影片框：預設 16:9，實際比例由 JS 依影片尺寸寫入 --video-ar（直式影片才不會被壓成細條） */
+    #videoWrap{aspect-ratio:var(--video-ar,16/9);flex:none;max-height:var(--video-maxh,46vh)}
+    .marks-col{width:100%;flex:none;min-height:260px;max-height:52vh}
+  }
+  /* 觸控裝置（手機＋平板，≤1180px）：更多選單生效、快捷鍵提示全部隱藏——觸控沒有鍵盤，快捷鍵無意義，跟螢幕大小無關 */
+  .mobile-only{display:none}
+  @media (max-width:1180px){
+    .desktop-only{display:none!important}
+    .mobile-only{display:inline-flex}
+    .dropdown.mobile-only{display:inline-block}
+    .kbd-hint{display:none}
+    .hk-hint{display:none}
+    /* 影片框依實際影片比例調整（直式影片不再被 16:9 壓成細條）；平板可用高度較充裕 */
+    #videoWrap{aspect-ratio:var(--video-ar,16/9);max-height:var(--video-maxh,56vh)}
+    /* 控制列需高於修改清單，否則倍速下拉會被清單蓋住點不到 */
+    .controls{position:relative;z-index:60}
+    .marks-col{position:relative;z-index:1}
+    #speedSel.open{z-index:400}
+  }
+  /* 手機版 header：只留開啟影片／更多／匯出報告同一列，專案名稱獨立一列（避免被壓縮） */
+  @media (max-width:700px){
+    header{gap:5px;padding:10px 10px}
+    .brand{order:1;padding-right:0;gap:6px}
+    .brand-mark{height:20px}
+    .brand-name{font-size:11.5px;letter-spacing:.08em;text-indent:.08em}
+    #btnChangeVideo{order:2;padding:8px 10px}
+    .dropdown.mobile-only{order:3}
+    .dropdown.mobile-only>button{padding:8px 10px}
+    .export-dropdown{order:4}
+    .export-dropdown #btnExport{padding:8px 12px}
+    header .dropdown{line-height:0}
+    .spacer{display:none}
+    #projName{order:5;flex-basis:100%;width:100%;margin-top:2px}
+    /* 控制列：圓角改與修改清單一致（20px），並分行：往後5秒/播放/往前5秒/倍速/時間碼 一列，時間軸獨立，修改此時間點獨立 */
+    .controls{border-radius:20px;padding:12px;gap:5px}
+    /* 播放控制列：縮小按鈕讓「後5秒/播放/前5秒/倍速/時間碼」能排在同一列 */
+    #btnBack,#btnPlay,#btnFwd{flex:none;padding:7px 8px;gap:3px}
+    #btnPlay span[data-i18n]{display:none}
+    #btnBack,#btnFwd{font-size:11px}
+    #btnBack{order:1}
+    #btnPlay{order:2}
+    #btnFwd{order:3}
+    /* 倍速：放在「往後五秒」右方、「時間碼」左方，且不再獨佔整列 */
+    #speedSel{order:4;flex:none;width:auto}
+    #speedSel .xsel-btn{width:auto;min-width:52px;justify-content:space-between;padding:6px 6px 6px 9px}
+    /* 時間碼：不使用 margin-left:auto（會把自己推成獨立一列），改為佔滿剩餘寬度 */
+    #timecode{order:5;margin-left:0;flex:1 1 90px;min-width:0;text-align:center}
+    .seek-wrap{order:6;flex-basis:100%;width:100%}
+    #btnMark{order:7;flex-basis:100%;width:100%;justify-content:center}
+    /* 控制列需高於修改清單，否則倍速下拉會被清單蓋住點不到 */
+    .controls{position:relative;z-index:60}
+    .marks-col{position:relative;z-index:1}
+    /* 倍速展開時再提一層，確保浮層永遠在最上面 */
+    #speedSel.open{z-index:400}
+  }
+  /* 手機（含橫向）：彈窗——用寬或高任一 ≤700px 判斷，涵蓋手機橫向寬度會超過 700px 的情況 */
+  @media (max-width:700px), (max-height:500px){
+    dialog{max-height:94vh;max-width:96vw}
+    dialog .dlg-inner{overflow-y:auto;max-height:calc(94vh - 90px)}
+    /* 標註對話框的畫筆/顏色下拉是絕對定位浮層，不能被 .dlg-inner 的 overflow:auto 裁掉導致點不到 */
+    #drawDlg .dlg-inner{overflow:visible;max-height:none}
+  }
+  /* 觸控裝置（手機＋平板，≤1180px）：彈窗強制置中，禁止套用拖曳記憶位置（CSS 雙重保險，JS 端 centerDlg 已同步處理） */
+  @media (max-width:1180px){
+    dialog{position:fixed!important;inset:0!important;left:0!important;top:0!important;right:0!important;bottom:0!important;margin:auto!important;max-width:96vw}
+    dialog .dlg-drag{cursor:default}
+    /* 標註對話框：內部浮層（畫筆/顏色下拉）需可見，故不設 overflow 裁切；內容已 fit 到視窗內不會溢出 */
+    /* 行動裝置：對話框與工具列改為滿版並可換行，避免 width:max-content 把版面撐出視窗 */
+    #drawDlg{width:min(96vw,100%)}
+    #drawDlg .dlg-inner{width:100%;max-width:100%}
+    #drawDlg .draw-bar{width:100%;max-width:100%;justify-content:center}
+    #drawDlg .draw-stage{max-width:100%}
+    #drawDlg .draw-stage img,#drawDlg #drawCanvas{max-width:100%}
+    /* 手機：工具列已把形狀類整合為單一下拉，元素變少，按鈕回到易點擊尺寸並確保圖示置中 */
+    #drawDlg .draw-bar{gap:5px;padding:7px 8px;flex-wrap:nowrap;overflow:visible;justify-content:center}
+    #drawDlg .draw-bar .tool-btn{width:36px;height:36px;padding:0;flex:none;border-radius:10px;
+      display:inline-flex;align-items:center;justify-content:center}
+    #drawDlg .draw-bar .shape-btn{width:auto;padding:0 7px;gap:2px}
+    #drawDlg .draw-bar .tool-btn .ic{width:17px;height:17px}
+    #drawDlg .draw-bar .shape-caret{width:10px;height:10px}
+    #drawDlg .draw-sep{margin:0 1px;height:20px}
+    #drawDlg .color-current{width:30px;height:30px;flex:none}
+    #drawDlg #drawWidth{flex:none}
+    #drawDlg #drawWidth .xsel-btn{min-width:0;padding:8px 6px 8px 9px;gap:3px;font-size:12px}
+    #drawDlg #drawWidth .xsel-caret{width:11px;height:11px}
+    /* 修改此時間點彈窗：滿版寬度、內容可捲動，最下方取消／儲存永遠完整可見 */
+    #markDlg{width:min(92vw,520px)!important;max-height:94vh;display:flex;flex-direction:column}
+    #markDlg[open]{display:flex}
+    #markDlg .dlg-inner{overflow-y:auto;flex:1 1 auto;min-height:0}
+    #markDlg .dlg-row{flex:none;margin-top:10px;padding-top:2px}
+    #markDlg .shot{max-width:100%;height:auto!important;object-fit:contain}
+    /* 影片資訊等資料型彈窗：在觸控裝置上放寬內容寬度、縮小字體以適應小螢幕（!important 覆蓋 inline style） */
+    #infoDlg .dlg-inner,#hkDlg .dlg-inner{max-width:100%!important}
+    #infoBody{font-size:12px!important;line-height:1.6}
+    #infoDlg .info-table td,#hkDlg .hotkey-table td{padding:7px 4px!important;font-size:12px!important}
+    #infoDlg .info-table td:first-child{min-width:96px}
+    /* 觸控裝置：自製下拉（畫筆大小/速度/顏色）保留 JS 的 up 智慧判斷（空間不足自動改向），
+       並保證 pop 不超出視窗：強制貼齊觸發按鈕左側、限制最大寬度與高度可內捲 */
+    .xsel-pop{min-width:120px;max-width:min(280px,calc(100vw - 16px));max-height:40vh;overflow-y:auto}
+    .xsel-pop.left{left:auto;right:0}
   }
   #markList{flex:1;overflow-y:auto;padding:10px;scrollbar-width:thin}
   #markList::-webkit-scrollbar{width:8px}
@@ -478,11 +596,36 @@
   .draw-bar.show{display:flex}
   .tool-btn{
     padding:6px 10px;border-radius:100px;font-size:12px;
+    display:inline-flex;align-items:center;justify-content:center;
     background:rgba(200,169,126,.10);border:1px solid var(--border2);color:var(--text);
     transition:.16s;
   }
   .tool-btn:hover{background:rgba(200,169,126,.20);border-color:var(--accent);color:#fff}
   .tool-btn.active,.tool-btn.active:hover{background:var(--grad-gold);border-color:transparent;color:#171410;box-shadow:0 2px 10px rgba(200,169,126,.35)}
+  /* 形狀工具整合下拉（箭頭／直線／矩形／橢圓收成一顆按鈕，全版本適用） */
+  .shape-wrap{position:relative;display:inline-block}
+  .shape-btn{display:inline-flex;align-items:center;gap:3px}
+  .shape-caret{width:11px;height:11px;opacity:.6;transition:transform .18s}
+  .shape-wrap.open .shape-caret{transform:rotate(180deg)}
+  .shape-pop{
+    display:none;position:absolute;top:calc(100% + 8px);left:0;z-index:300;min-width:132px;
+    background:var(--solid-panel);border:1px solid rgba(255,255,255,.18);border-radius:12px;padding:5px;
+    box-shadow:0 16px 40px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.14);
+  }
+  .shape-wrap.up .shape-pop{top:auto;bottom:calc(100% + 8px)}
+  .shape-wrap.open .shape-pop{display:block;animation:ddIn .16s cubic-bezier(.16,1,.3,1)}
+  .shape-opt{
+    display:flex;align-items:center;gap:8px;font-size:12px;padding:7px 10px;border-radius:8px;
+    cursor:pointer;color:var(--text);white-space:nowrap;transition:.13s;
+  }
+  .shape-opt .ic{width:15px;height:15px;flex:none}
+  .shape-opt:hover{background:var(--grad-gold);color:#171410}
+  .shape-opt.sel{background:var(--glass-hi);font-weight:600}
+  .shape-opt.sel::after{content:'✓';margin-left:auto;color:var(--accent);font-weight:700;padding-left:8px}
+  .shape-opt:hover.sel::after{color:#171410}
+  [data-theme="light"] .shape-pop{background:#fffdf8;border-color:rgba(255,255,255,.9);box-shadow:0 16px 40px rgba(20,30,60,.18),inset 0 1px 0 #fff}
+  [data-theme="light"] .shape-opt:hover{background:linear-gradient(180deg,#ffe9b8,#f0cf90);color:#4a3616}
+  [data-theme="light"] .shape-opt.sel::after{color:#9a7b48}
   .color-wrap{position:relative}
   .color-current{
     width:26px;height:26px;border-radius:8px;cursor:pointer;padding:0;
@@ -612,6 +755,7 @@
     <symbol id="i-undo" viewBox="0 0 24 24"><path d="M4.4 8.4h9.8a4.9 4.9 0 010 9.8h-3.9M4.4 8.4l3.6-3.6M4.4 8.4l3.6 3.6"/></symbol>
     <symbol id="i-eraser" viewBox="0 0 24 24"><path d="M8.4 19.6H5.2l-1.8-1.8a1.2 1.2 0 010-1.7L13.6 5.9a1.2 1.2 0 011.7 0l4.8 4.8a1.2 1.2 0 010 1.7l-7.4 7.2z"/><path d="M10.2 9.3l5.5 5.5"/></symbol>
     <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4.4 6.9h15.2M9.4 6.9V5.2a1 1 0 011-1h3.2a1 1 0 011 1v1.7M6.4 6.9l.9 12.4a1.1 1.1 0 001.1 1h7.2a1.1 1.1 0 001.1-1l.9-12.4"/><path d="M10.4 10.4v6M13.6 10.4v6"/></symbol>
+    <symbol id="i-more" viewBox="0 0 24 24"><circle cx="12" cy="5.2" r="1.5" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none"/><circle cx="12" cy="18.8" r="1.5" fill="currentColor" stroke="none"/></symbol>
   </defs>
 </svg>
 
@@ -624,19 +768,34 @@
     </div>
   </div>
   <button id="btnChangeVideo"><svg class="ic"><use href="#i-swap"/></svg><span data-i18n="changeVideo">開啟影片</span><span class="kbd-hint">Alt+N</span></button>
-  <button id="btnInfo"><svg class="ic"><use href="#i-info"/></svg><span data-i18n="videoInfo">影片資訊</span><span class="kbd-hint">I</span></button>
+  <button id="btnInfo" class="desktop-only"><svg class="ic"><use href="#i-info"/></svg><span data-i18n="videoInfo">影片資訊</span><span class="kbd-hint">I</span></button>
   <input id="projName" data-i18n-ph="projPh" placeholder="請先輸入專案名稱" required>
   <div class="spacer"></div>
-  <button id="btnTheme" title="Theme"><svg class="ic"><use href="#i-moon" id="themeIcon"/></svg></button>
-  <div class="dropdown">
+  <button id="btnTheme" class="desktop-only" title="Theme"><svg class="ic"><use href="#i-moon" id="themeIcon"/></svg></button>
+  <div class="dropdown desktop-only">
     <button id="btnLang"><svg class="ic"><use href="#i-globe"/></svg><span id="langLabel">繁中</span></button>
     <div class="dd-menu" id="langMenu">
       <div class="dd-item" data-lang="zh">繁體中文</div>
       <div class="dd-item" data-lang="en">English</div>
     </div>
   </div>
-  <button id="btnHotkeys"><svg class="ic"><use href="#i-keyboard"/></svg><span data-i18n="hotkeys">快捷鍵</span><span class="kbd-hint">?</span></button>
-  <div class="dropdown">
+  <button id="btnHotkeys" class="desktop-only"><svg class="ic"><use href="#i-keyboard"/></svg><span data-i18n="hotkeys">快捷鍵</span><span class="kbd-hint">?</span></button>
+  <div class="dropdown mobile-only">
+    <button id="btnMoreMenu" title="更多"><svg class="ic"><use href="#i-more"/></svg></button>
+    <div class="dd-menu" id="moreMenu">
+      <div class="dd-group"><div class="dd-glabel" data-i18n="appearance">外觀</div>
+        <div class="dd-item" id="mBtnTheme"><svg class="ic"><use href="#i-moon" id="mThemeIcon"/></svg><span data-i18n="toggleTheme">明亮／暗色</span></div>
+      </div>
+      <div class="dd-group"><div class="dd-glabel" data-i18n="language">語言</div>
+        <div class="dd-item" data-lang="zh"><svg class="ic"><use href="#i-globe"/></svg>繁體中文</div>
+        <div class="dd-item" data-lang="en"><svg class="ic"><use href="#i-globe"/></svg>English</div>
+      </div>
+      <div class="dd-group"><div class="dd-glabel" data-i18n="info">資訊</div>
+        <div class="dd-item" id="mBtnInfo"><svg class="ic"><use href="#i-info"/></svg><span data-i18n="videoInfo">影片資訊</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="dropdown export-dropdown">
     <button id="btnExport" class="primary"><svg class="ic"><use href="#i-export"/></svg><span data-i18n="export">匯出報告</span><span class="kbd-hint">Alt+E</span></button>
     <div class="dd-menu" id="exportMenu">
       <div class="dd-item" data-fmt="pdf"><svg class="ic"><use href="#i-pdf"/></svg>PDF</div>
@@ -713,8 +872,8 @@
     <label><input type="radio" name="sev" value="僅提醒"><span class="dot-r" style="background:#4f8cff"></span><span data-i18n="sev3">僅提醒</span></label>
   </div>
   <div class="dlg-row">
-    <button id="dlgCancel" type="button"><span data-i18n="cancel">取消</span>（Esc）</button>
-    <button id="dlgSave" type="button" class="primary"><span data-i18n="save">儲存</span>（Ctrl+Enter）</button>
+    <button id="dlgCancel" type="button"><span data-i18n="cancel">取消</span><span class="kbd-hint">（Esc）</span></button>
+    <button id="dlgSave" type="button" class="primary"><span data-i18n="save">儲存</span><span class="kbd-hint">（Ctrl+Enter）</span></button>
   </div>
   </div>
 </dialog>
@@ -725,10 +884,18 @@
   <div class="dlg-inner">
   <div class="draw-bar show" id="drawBar">
     <button class="tool-btn" type="button" data-tool="pen" title="Pen"><svg class="ic"><use href="#i-pen"/></svg></button>
-    <button class="tool-btn" type="button" data-tool="arrow" title="Arrow"><svg class="ic"><use href="#i-arrow"/></svg></button>
-    <button class="tool-btn" type="button" data-tool="line" title="Line"><svg class="ic"><use href="#i-line"/></svg></button>
-    <button class="tool-btn" type="button" data-tool="rect" title="Rectangle"><svg class="ic"><use href="#i-rect"/></svg></button>
-    <button class="tool-btn" type="button" data-tool="ellipse" title="Ellipse"><svg class="ic"><use href="#i-circle"/></svg></button>
+    <div class="shape-wrap" id="shapeSel">
+      <button class="tool-btn shape-btn" type="button" id="shapeBtn" title="Shapes">
+        <svg class="ic"><use href="#i-arrow" id="shapeIcon"/></svg>
+        <svg class="ic shape-caret"><use href="#i-caret"/></svg>
+      </button>
+      <div class="shape-pop" id="shapePop">
+        <div class="shape-opt" data-tool="arrow"><svg class="ic"><use href="#i-arrow"/></svg><span data-i18n="toolArrow">箭頭</span></div>
+        <div class="shape-opt" data-tool="line"><svg class="ic"><use href="#i-line"/></svg><span data-i18n="toolLine">直線</span></div>
+        <div class="shape-opt" data-tool="rect"><svg class="ic"><use href="#i-rect"/></svg><span data-i18n="toolRect">矩形</span></div>
+        <div class="shape-opt" data-tool="ellipse"><svg class="ic"><use href="#i-circle"/></svg><span data-i18n="toolEllipse">橢圓</span></div>
+      </div>
+    </div>
     <div class="draw-sep"></div>
     <div class="color-wrap">
       <button class="color-current" id="colorCurrent" type="button" title="顏色"></button>
@@ -827,12 +994,23 @@ function xselInit(id,onChange){
     });
   };
   btn.onclick=e=>{
-    e.stopPropagation();
+    e.preventDefault();
+    const willOpen=!box.classList.contains('open');
+    window.closeAllMenus&&window.closeAllMenus();
     document.querySelectorAll('.xsel.open').forEach(x=>{if(x!==box)x.classList.remove('open')});
-    box.classList.toggle('open');
-    // 空間不足時改向下展開
-    const r=box.getBoundingClientRect();
-    box.classList.toggle('up',r.top<190);
+    box.classList.toggle('open',willOpen);
+    if(willOpen){
+      const r=box.getBoundingClientRect();
+      const popH=Math.max(box.querySelector('.xsel-pop').offsetHeight||140,140);
+      const below=r.bottom+popH+8 <= innerHeight;   // 向下展開是否放得下
+      const above=r.top-popH-8 >= 0;                 // 向上展開是否放得下
+      // .xsel.up 的 CSS 意義是「向下展開」；優先選放得下的一側
+      let down = below;
+      if(below && above) down = true;                // 都放得下：預設向下（貼近操作）
+      else if(!below && !above) down = (r.top <= innerHeight - r.bottom); // 都不行：選空間大側（向下優先）
+      box.classList.toggle('up', down);
+      box.classList.toggle('left', r.right + 8 > innerWidth);
+    }
   };
   pop.querySelectorAll('.xsel-opt').forEach(o=>o.onclick=e=>{
     e.stopPropagation();sync(o.dataset.v);box.classList.remove('open');
@@ -842,7 +1020,7 @@ function xselInit(id,onChange){
   box.setValue=sync;
   return box;
 }
-document.addEventListener('click',()=>document.querySelectorAll('.xsel.open').forEach(x=>x.classList.remove('open')));
+// 移除舊版全域 xsel 關閉（會與 btn.onclick 的 stopPropagation 衝突導致開了又被關）；互斥已由 closeAllMenus + btn.onclick 內處理
 
 /* ---- 自製 alert / confirm（取代瀏覽器原生視窗） ---- */
 function appAlert(msg,title){
@@ -883,11 +1061,44 @@ const Draw={
   init(){
     this.cv=$('drawCanvas');this.ctx=this.cv.getContext('2d');
     const bar=$('drawBar');
-    bar.querySelectorAll('[data-tool]').forEach(b=>b.onclick=()=>{
-      this.tool=b.dataset.tool;
-      bar.querySelectorAll('[data-tool]').forEach(x=>x.classList.toggle('active',x===b));
+    const penBtn=bar.querySelector('.tool-btn[data-tool="pen"]');
+    const shapeWrap=$('shapeSel'),shapeBtn=$('shapeBtn'),shapePop=$('shapePop'),shapeIcon=$('shapeIcon');
+    const SHAPE_ICON={arrow:'#i-arrow',line:'#i-line',rect:'#i-rect',ellipse:'#i-circle'};
+    // 統一設定目前工具：筆刷與形狀鈕互斥高亮，形狀鈕的圖示同步為所選形狀
+    const setTool=(t)=>{
+      this.tool=t;
+      const isPen=(t==='pen');
+      penBtn.classList.toggle('active',isPen);
+      shapeBtn.classList.toggle('active',!isPen);
+      if(!isPen){
+        shapeIcon.setAttribute('href',SHAPE_ICON[t]||'#i-arrow');
+        shapeWrap.dataset.shape=t;
+      }
+      shapePop.querySelectorAll('.shape-opt').forEach(o=>o.classList.toggle('sel',o.dataset.tool===t));
+    };
+    this.setTool=setTool;
+    penBtn.onclick=e=>{e.preventDefault();window.closeAllMenus&&window.closeAllMenus();setTool('pen')};
+    // 形狀鈕：單擊套用目前形狀；點箭頭區（或已是形狀工具時）展開選單
+    shapeBtn.onclick=e=>{
+      e.preventDefault();
+      const willOpen=!shapeWrap.classList.contains('open');
+      window.closeAllMenus&&window.closeAllMenus();
+      shapeWrap.classList.toggle('open',willOpen);
+      if(willOpen){
+        const r=shapeBtn.getBoundingClientRect();
+        const ph=shapePop.offsetHeight||150;
+        shapeWrap.classList.toggle('up', r.bottom+ph+8>innerHeight && r.top-ph-8>=0);
+      }
+      // 展開的同時就把工具切到目前形狀，單擊即可直接使用
+      setTool(shapeWrap.dataset.shape||'arrow');
+    };
+    shapePop.querySelectorAll('.shape-opt').forEach(o=>o.onclick=e=>{
+      e.stopPropagation();
+      setTool(o.dataset.tool);
+      shapeWrap.classList.remove('open');
     });
-    bar.querySelector('[data-tool="pen"]').classList.add('active');
+    setTool('pen');
+    shapeWrap.dataset.shape='arrow';
     // 顏色：單一色塊顯示當前色，點擊開啟自製選單（預設色 + 自製 SV/Hue 選color器 + HEX）
     const PRESETS=['#ff453a','#ff9f0a','#ffd60a','#30d158','#0a84ff','#bf5af2','#ffffff','#c8a97e'];
     const cur=$('colorCurrent'),pop=$('colorPop'),hexIn=$('drawHex'),
@@ -967,7 +1178,7 @@ const Draw={
     // 建預設色按鈕
     presetBox.innerHTML=PRESETS.map(c=>`<button type="button" data-c="${c}" style="background:${c}"></button>`).join('');
     presetBox.querySelectorAll('button').forEach(btn=>btn.onclick=()=>applyColor(btn.dataset.c));
-    cur.onclick=()=>{pop.classList.toggle('show');}; // 不 stopPropagation，讓 document 的 pointerdown 統一管理
+    cur.onclick=e=>{e.stopPropagation();window.closeAllMenus&&window.closeAllMenus();pop.classList.toggle('show');};
     // 點外部關閉選單
     // color-pop 關閉：capture 階段確保任何點擊外部都能關閉（不受 stopPropagation 影響）
     document.addEventListener('click',e=>{
@@ -1025,27 +1236,26 @@ const Draw={
     const img=$('drawImg'),dlg=$('drawDlg');
     const nw=img.naturalWidth||16,nh=img.naturalHeight||9,ar=nw/nh;
     const portrait=ar<1;
-    // 直式圖：以高度為主，寬度儘量貼合圖比例，減少兩側留白並置中
-    const availH=Math.max(220,innerHeight-(portrait?210:230));
+    const touch=matchMedia('(max-width:1180px)').matches;
     const barW=$('drawBar').scrollWidth||440;
-    let w,h;
-    if(portrait){
-      // 直式：高度吃滿，寬度 = 高度*比例；若仍比工具列窄則放大到工具列寬（但維持比例）
-      h=availH; w=h*ar;
-      const minW=Math.min(barW,440);
-      if(w<minW){ w=minW; h=w/ar; }
-    }else{
-      const availW=Math.max(440,innerWidth-80);
-      w=availW; h=w/ar;
-      if(h>availH){h=availH;w=h*ar;}
-    }
-    w=Math.round(w);h=Math.round(h);
+    const margin=touch?20:24;                       // 左右安全邊距
+    // 可用寬：永遠不超過視窗（行動裝置強制鎖定）
+    const maxW=Math.max(160,innerWidth-margin);
+    // 可用高：扣掉標題列＋工具列＋按鈕列；行動裝置直式再收斂，避免視窗被拉太長
+    const chrome=touch?(portrait?300:250):(portrait?210:230);
+    let maxH=Math.max(150,innerHeight-chrome);
+    if(touch&&portrait)maxH=Math.min(maxH,Math.round(innerHeight*0.52));
+    // 等比縮放，使圖完整落在 maxW × maxH 之內（contain）
+    let w=maxW,h=w/ar;
+    if(h>maxH){h=maxH;w=h*ar;}
+    // 最終硬鎖雙軸，杜絕任何情況下溢出視窗
+    w=Math.round(Math.min(w,maxW));h=Math.round(Math.min(h,maxH));
     img.style.width=w+'px';img.style.height=h+'px';
     this.dpr=window.devicePixelRatio||1;
     this.cv.style.width=w+'px';this.cv.style.height=h+'px';
     this.cv.width=Math.round(w*this.dpr);this.cv.height=Math.round(h*this.dpr);
-    // 視窗寬度貼合內容並置中
-    dlg.style.width=(Math.max(w,barW)+32)+'px';
+    // 桌面才依內容貼合寬度；行動裝置交給 CSS 滿版，避免工具列寬度把對話框撐出視窗
+    dlg.style.width=touch?'':(Math.max(w,barW)+32)+'px';
     dlg.style.maxWidth='96vw';
     this.redraw();
   },
@@ -1115,13 +1325,13 @@ const Draw={
 <script>
 /* ---------- 語言 & 主題 ---------- */
 const I18N={
- zh:{changeVideo:'開啟影片',videoInfo:'影片資訊',hotkeys:'快捷鍵',export:'匯出報告',projPh:'請先輸入專案名稱',
+ zh:{changeVideo:'開啟影片',videoInfo:'影片資訊',hotkeys:'快捷鍵',export:'匯出報告',projPh:'請先輸入專案名稱',toggleTheme:'明亮／暗色',appearance:'外觀',language:'語言',info:'資訊',toolArrow:'箭頭',toolLine:'直線',toolRect:'矩形',toolEllipse:'橢圓',
   dropHere:'把影片拖到這裡，或',pickFile:'選擇影片檔案',dropNote:'支援 mp4 / mov / webm · 影片不會上傳到任何地方',
   play:'播放',pause:'暫停',markBtn:'修改此時間點',markList:'修改清單',markTitle:'修改此時間點',
   notePh:'修改備註，例如：字幕錯字「的→得」；3:42 音樂突然斷掉請補 fade',
   refLabel:'參考資料（選填）— 貼上網址按 Enter 加入，或上傳參考圖片',refUrlPh:'https://... 參考網址（按 Enter 加入）',
   uploadRef:'上傳參考圖片',draw:'標註',more:'（點擊查看完整內容）',dwTitle:'瀏覽器無法解碼此影片',dwBody:'檔案已成功載入（資訊與時間碼可正常使用），但此編碼瀏覽器不支援預覽。<br>常見於 Sony XAVC、ProRes、HEVC 10bit、MXF 等專業素材。<br><br>建議先轉成 H.264 MP4 代理檔再審片。',drawTitle:'截圖標註',applyDraw:'套用標註',marked:'已標註',goto:'跳到此時間點',del:'刪除',edit:'編輯',sev1:'必須修改',sev2:'建議修改',sev3:'僅提醒',cancel:'取消',save:'儲存',close:'關閉',
-  emptyHint:'播放影片時按 <kbd>M</kbd> 或「修改此時間點」<br>就會在這裡建立時間點備註<br>建立後點擊項目可重新編輯與標註<br><br>按 <kbd>?</kbd> 看全部快捷鍵',
+  emptyHint:'<span class="hk-hint">播放影片時按 <kbd>M</kbd> 或</span>點擊「修改此時間點」<br>就會在這裡建立時間點備註<br>建立後點擊項目可重新編輯與標註<br><br><span class="hk-hint">按 <kbd>?</kbd> 看全部快捷鍵</span>',
   hkPlay:'播放 / 暫停',hkSeek:'往後 5 秒 / 往前 5 秒',hkMark:'在此時間點加入修改',hkSpeed:'降低 / 提高播放速度',
   hkInfo:'顯示影片資訊',hkExport:'開啟匯出選單',hkNew:'開啟影片（清空目前清單）',hkHelp:'顯示本快捷鍵表',hkEsc:'關閉視窗 / 取消',hkSave:'（修改視窗內）儲存',
   tcLabel:'時間碼',noNote:'（無備註）',needName:'請先在左上角輸入「專案名稱」，才能匯出報告',noMarks:'目前沒有修改紀錄',
@@ -1135,13 +1345,13 @@ const I18N={
   measured:'實測',defaultVal:'預設值，播放一次即校正',onlyMp4:'深入解析僅支援 MP4／MOV 封裝',
   colNo:'編號',colTc:'時間碼',colSev:'等級',colNote:'修改備註',colRef:'參考資料',colShot:'截圖',refImg:'參考圖片',
   hintTitle:'提示',confirmTitle:'請確認',ok:'確定',pdfFail:'PDF 產出失敗：',xlsxFail:'Excel 元件載入失敗，請確認網路連線後重新整理頁面',urlInvalid:'請輸入有效的網址（以 http(s):// 或 www. 開頭）',closeVideo:'影片已關閉，所有修改與資訊已清除',colorCustom:'自訂顏色',toolSize:'工具大小',drawText:'文字',textPh:'輸入標註文字…',closeVideoConfirm:'確定要關閉影片嗎？\n所有修改紀錄與專案名稱都會被清除。'},
- en:{changeVideo:'Open Video',videoInfo:'Media Info',hotkeys:'Shortcuts',export:'Export',projPh:'Enter project name first',
+ en:{changeVideo:'Open Video',videoInfo:'Media Info',hotkeys:'Shortcuts',export:'Export',projPh:'Enter project name first',toggleTheme:'Light / Dark',appearance:'Appearance',language:'Language',info:'Info',toolArrow:'Arrow',toolLine:'Line',toolRect:'Rectangle',toolEllipse:'Ellipse',
   dropHere:'Drop a video here, or',pickFile:'Choose video file',dropNote:'mp4 / mov / webm · Nothing is uploaded anywhere',
   play:'Play',pause:'Pause',markBtn:'Add Note',markList:'Revision List',markTitle:'Add Revision Note',
   notePh:'Revision note, e.g. subtitle typo; music cuts abruptly at 3:42, please add a fade',
   refLabel:'Reference (optional) — paste a URL and press Enter, or upload an image',refUrlPh:'https://... reference URL (press Enter)',
   uploadRef:'Upload reference image',draw:'Markup',more:'(click to view full text)',dwTitle:'This browser cannot decode this video',dwBody:'The file loaded successfully (media info and timecode work), but this codec is not supported for playback.<br>Common with Sony XAVC, ProRes, HEVC 10-bit and MXF footage.<br><br>Transcode to an H.264 MP4 proxy for review.',drawTitle:'Screenshot Markup',applyDraw:'Apply',marked:'marked',goto:'Jump to time',del:'Delete',edit:'Edit',sev1:'Must Fix',sev2:'Suggested',sev3:'FYI',cancel:'Cancel',save:'Save',close:'Close',
-  emptyHint:'Press <kbd>M</kbd> or "Add Note" while playing<br>to create a timecoded revision here<br>Click any item to edit or re-annotate<br><br>Press <kbd>?</kbd> for all shortcuts',
+  emptyHint:'<span class="hk-hint">Press <kbd>M</kbd> or</span> Tap "Add Note" while playing<br>to create a timecoded revision here<br>Click any item to edit or re-annotate<br><br><span class="hk-hint">Press <kbd>?</kbd> for all shortcuts</span>',
   hkPlay:'Play / Pause',hkSeek:'Back 5s / Forward 5s',hkMark:'Add note at current time',hkSpeed:'Decrease / Increase speed',
   hkInfo:'Show media info',hkExport:'Open export menu',hkNew:'Open video (clears list)',hkHelp:'Show this shortcut table',hkEsc:'Close dialog / cancel',hkSave:'(In note dialog) save',
   tcLabel:'Timecode',noNote:'(no note)',needName:'Please enter a Project Name (top-left) before exporting',noMarks:'No revisions yet',
@@ -1179,6 +1389,8 @@ function applyTheme(t){
   document.documentElement.setAttribute('data-theme',t);
   const ic=document.getElementById('themeIcon');
   if(ic)ic.setAttribute('href',t==='light'?'#i-sun':'#i-moon');
+  const mic=document.getElementById('mThemeIcon');
+  if(mic)mic.setAttribute('href',t==='light'?'#i-sun':'#i-moon');
   localStorage.setItem('rr_theme',t);
 }
 document.addEventListener('DOMContentLoaded',()=>{
@@ -1187,8 +1399,13 @@ document.addEventListener('DOMContentLoaded',()=>{
   applyLang();
   document.getElementById('btnTheme').onclick=()=>
     applyTheme(document.documentElement.getAttribute('data-theme')==='light'?'dark':'light');
+  // 統一關閉所有下拉浮層（點擊新選單時互斥，避免多個同時展開）
+  const closeAllMenus=()=>{
+    document.querySelectorAll('.dd-menu.show,.xsel.open,.sev-pop.show,.color-pop.show,.shape-wrap.open').forEach(el=>{el.classList.remove('show');el.classList.remove('open');});
+  };
+  window.closeAllMenus=closeAllMenus;
   const lm=document.getElementById('langMenu');
-  document.getElementById('btnLang').onclick=e=>{e.stopPropagation();lm.classList.toggle('show')};
+  document.getElementById('btnLang').onclick=e=>{e.stopPropagation();const willOpen=!lm.classList.contains('show');closeAllMenus();lm.classList.toggle('show',willOpen)};
   lm.addEventListener('click',e=>{
     const it=e.target.closest('.dd-item');if(!it)return;
     LANG=it.dataset.lang;lm.classList.remove('show');applyLang();
@@ -1196,7 +1413,25 @@ document.addEventListener('DOMContentLoaded',()=>{
   const markSel=()=>lm.querySelectorAll('.dd-item').forEach(x=>x.classList.toggle('sel',x.dataset.lang===LANG));
   markSel();
   document.getElementById('btnLang').addEventListener('click',markSel);
-  document.addEventListener('click',e=>{if(!e.target.closest('.dropdown'))lm.classList.remove('show')});
+  // 全域：點擊下拉容器以外的地方就關閉所有浮層（含其他下拉，達成互斥）
+  document.addEventListener('click',e=>{
+    if(!e.target.closest('.dropdown')&&!e.target.closest('.xsel')&&!e.target.closest('.sev-custom')&&!e.target.closest('.color-wrap')&&!e.target.closest('.shape-wrap'))
+      closeAllMenus();
+  });
+
+  // 手機版「更多」選單：影片資訊／明暗切換／語言，收合桌面版分散的按鈕
+  const mm=document.getElementById('moreMenu');
+  const btnMore=document.getElementById('btnMoreMenu');
+  if(mm&&btnMore){
+    btnMore.onclick=e=>{e.stopPropagation();const willOpen=!mm.classList.contains('show');closeAllMenus();mm.classList.toggle('show',willOpen)};
+    mm.addEventListener('click',e=>{
+      const it=e.target.closest('.dd-item');if(!it)return;
+      closeAllMenus();  // 先關掉自己，避免與觸發的桌面版按鈕連鎖開啟
+      if(it.id==='mBtnInfo'){document.getElementById('btnInfo').click();}
+      else if(it.id==='mBtnTheme'){document.getElementById('btnTheme').click();}
+      else if(it.dataset.lang){LANG=it.dataset.lang;applyLang();}
+    });
+  }
 });
 </script>
 <script>
@@ -1213,6 +1448,8 @@ function saveDlgPos(d){try{
 function centerDlg(d){
   const saved=loadDlgPos()[d.id];
   const hasSaved=saved&&saved.left&&saved.top;   // 空字串視為沒存過
+  const isTouch=matchMedia('(max-width:1180px)').matches;  // 觸控裝置（手機/平板）強制置中，不套用拖曳記憶位置，也不設 inline left/top（交由 CSS margin:auto 處理）
+  if(isTouch){ d.style.left='';d.style.top='';return; }
   if(hasSaved){
     if(saved.width)d.style.width=saved.width;
     if(saved.height)d.style.height=saved.height;
@@ -1221,7 +1458,7 @@ function centerDlg(d){
     d.style.left=L+'px';d.style.top=T+'px';
     return;
   }
-  // 未存過 → 等版面算完再置中
+  // 未存過或觸控裝置 → 等版面算完再置中
   d.style.left='';d.style.top='';
   requestAnimationFrame(()=>{
     d.style.left=Math.max(0,(innerWidth-d.offsetWidth)/2)+'px';
@@ -1256,17 +1493,38 @@ function fitMarkDlg(){
   const vw=video.videoWidth||16,vh=video.videoHeight||9;
   const aspect=vw/vh;
   const portrait=aspect<1;
-  // 截圖尺寸：橫式寬 360、直式高 260（都遠小於畫面，維持彈窗感）
+  const touch=matchMedia('(max-width:1180px)').matches;
+  const narrow=matchMedia('(max-width:700px)').matches;
   let w,h;
-  if(portrait){h=Math.min(260,innerHeight*0.32);w=h*aspect;}
-  else{w=Math.min(360,innerWidth*0.3);h=w/aspect;}
+  if(touch){
+    // 行動裝置：預覽寬度吃滿彈窗內容區（橫式才不會小到看不清），
+    // 高度上限收斂，確保備註欄與下方取消／儲存按鈕完整留在視窗內
+    const dlgPad=narrow?36:48;
+    const availW=Math.min(innerWidth*(narrow?0.92:0.86),narrow?520:640)-dlgPad;
+    // 其餘元件（標題列＋時間碼＋備註欄＋參考列＋等級列＋按鈕列）需要保留的高度
+    const reserved=narrow?330:340;
+    const availH=Math.max(110,innerHeight*0.94-reserved);
+    w=availW; h=w/aspect;
+    if(h>availH){h=availH;w=h*aspect;}
+    // 直式影片再收一點，避免整個彈窗過長
+    if(portrait&&h>innerHeight*0.34){h=innerHeight*0.34;w=h*aspect;}
+  }else{
+    // 桌面：維持原本的小巧彈窗感
+    if(portrait){h=Math.min(260,innerHeight*0.32);w=h*aspect;}
+    else{w=Math.min(360,innerWidth*0.3);h=w/aspect;}
+  }
   shot.style.width=Math.round(w)+'px';
   shot.style.height=Math.round(h)+'px';
-  // 彈窗寬度跟著截圖走（留 40px padding），直式最小 360 才放得下輸入框
-  const dlgW=Math.max(portrait?380:Math.round(w)+40,360);
-  if(!loadDlgPos()[d.id]||!loadDlgPos()[d.id].width)d.style.width=dlgW+'px';
+  if(touch){
+    // 行動裝置寬度交給 CSS（滿版上限），不要用 inline width 撐開
+    d.style.width='';
+  }else{
+    const dlgW=Math.max(portrait?380:Math.round(w)+40,360);
+    if(!loadDlgPos()[d.id]||!loadDlgPos()[d.id].width)d.style.width=dlgW+'px';
+  }
   if(window.Draw&&Draw.cv)requestAnimationFrame(()=>Draw.sync());
 }
+addEventListener('resize',()=>{if($('markDlg').open)fitMarkDlg()});
 </script>
 
 <script>
@@ -1292,6 +1550,8 @@ function closeVideo(){
   $('projName').value=''; $('projName').style.borderColor='';
   $('videoWrap').classList.remove('show');
   $('ctrlBar').classList.add('hide');
+  document.documentElement.style.removeProperty('--video-ar');
+  document.documentElement.style.removeProperty('--video-maxh');
   dz.classList.remove('hide');
   $('decodeWarn').classList.remove('show');
   showToast(T('closeVideo'));
@@ -1339,6 +1599,7 @@ function loadFile(f){
     $('ctrlBar').classList.remove('hide');
     $('seek').max=Math.floor(video.duration*100);
     video.playbackRate=parseFloat($('speedSel').dataset.value);
+    applyVideoAspect();
   };
 }
 
@@ -1373,6 +1634,24 @@ function tickUI(){
 }
 function startTick(){if(_rafId==null)_rafId=requestAnimationFrame(tickUI)}
 function stopTick(){if(_rafId!=null){cancelAnimationFrame(_rafId);_rafId=null}}
+/* 依影片實際比例調整預覽框：直式影片不再被 16:9 壓成細條，且高度受視窗約束 */
+function applyVideoAspect(){
+  const w=video.videoWidth,h=video.videoHeight;
+  const root=document.documentElement;
+  if(!w||!h){root.style.removeProperty('--video-ar');root.style.removeProperty('--video-maxh');return;}
+  const ar=w/h, portrait=ar<1, touch=matchMedia('(max-width:1180px)').matches;
+  root.style.setProperty('--video-ar',`${w} / ${h}`);
+  if(!touch){root.style.removeProperty('--video-maxh');return;}
+  const narrow=matchMedia('(max-width:700px)').matches;
+  // 直式影片給較高上限（但仍留空間給控制列與清單）；橫式維持原本比例即可
+  let maxh;
+  if(portrait) maxh = narrow ? 58 : 62;
+  else         maxh = narrow ? 46 : 56;
+  root.style.setProperty('--video-maxh',maxh+'vh');
+}
+addEventListener('resize',()=>{if(video&&video.videoWidth)applyVideoAspect()});
+addEventListener('orientationchange',()=>setTimeout(()=>{if(video&&video.videoWidth)applyVideoAspect()},200));
+
 video.addEventListener('play',startTick);
 video.addEventListener('pause',()=>{stopTick();syncUIOnce()});
 video.addEventListener('seeked',()=>{if(video.paused)syncUIOnce()});
@@ -1571,6 +1850,11 @@ function openMarkDlg(){
   updateDrawFlag();
   fitMarkDlg();
   requestAnimationFrame(()=>centerDlg($('markDlg')));
+  // 參考連結輸入框只是「暫存輸入」，沒按 Enter 就不算數：每次開窗一律清空，
+  // 否則上次打到一半的網址會殘留到下一筆修改
+  const ru=$('dlgRefUrl');
+  if(ru){ru.value='';ru.style.borderColor='';}
+  $('refErr').style.display='none';
   renderPendingRefs();
   $('dlgNote').focus();
 }
@@ -1679,14 +1963,18 @@ function renderMarks(){
     const sevBtn=sevBox.querySelector('.sev-btn');
     const sevPop=sevBox.querySelector('.sev-pop');
     const syncSev=v=>{mk.sev=v;sevBox.dataset.sev=v;sevBox.querySelector('.sev-txt').textContent=sevLabel(v);sevBox.querySelector('.dot-r').style.background=SEVCOLOR[v];sevPop.querySelectorAll('.sev-opt').forEach(o=>o.classList.toggle('sel',o.dataset.v===v));};
+    // 渲染當下就把目前等級打勾，避免開啟選單時既有選項沒有勾記
+    sevPop.querySelectorAll('.sev-opt').forEach(o=>o.classList.toggle('sel',o.dataset.v===mk.sev));
     sevBtn.onclick=e=>{
       e.stopPropagation();
-      const wasOpen=sevPop.classList.contains('show');
+      // 先記住原本狀態，再關閉全部浮層，否則自己的 show 會被清掉導致再點無法收合
+      const willOpen=!sevPop.classList.contains('show');
+      window.closeAllMenus&&window.closeAllMenus();
       // 先收起其他所有選單，並還原它們卡片的 z-index（避免從下往上點時 z-index 殘留導致壓層錯亂）
       document.querySelectorAll('.sev-pop.show').forEach(x=>{if(x!==sevPop)x.classList.remove('show');});
       document.querySelectorAll('.mark-card').forEach(c=>{if(c!==card)c.style.zIndex='';});
-      sevPop.classList.toggle('show');
-      const open=sevPop.classList.contains('show');
+      sevPop.classList.toggle('show',willOpen);
+      const open=willOpen;
       // 開啟時把所屬卡片提到最上層，避免被下一張卡片壓住
       card.style.position='relative';
       card.style.zIndex=open?'50':'';
@@ -1713,8 +2001,8 @@ const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',
 </script>
 <script>
 /* ---- 匯出選單 ---- */
-function toggleExportMenu(){$('exportMenu').classList.toggle('show')}
-$('btnExport').onclick=e=>{e.stopPropagation();toggleExportMenu()};
+function toggleExportMenu(force){const m=$('exportMenu');if(typeof force==='boolean')m.classList.toggle('show',force);else m.classList.toggle('show')}
+$('btnExport').onclick=e=>{e.stopPropagation();const willOpen=!$('exportMenu').classList.contains('show');closeAllMenus();toggleExportMenu(willOpen)};
 document.addEventListener('click',e=>{if(!e.target.closest('.dropdown'))$('exportMenu').classList.remove('show')});
 document.addEventListener('click',()=>document.querySelectorAll('.sev-pop.show').forEach(p=>{p.classList.remove('show');const c=p.closest('.mark-card');if(c)c.style.zIndex='';}));
 $('exportMenu').addEventListener('click',e=>{
