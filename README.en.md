@@ -14,6 +14,20 @@ A local-first video review tool. Load a video in your browser, drop time-coded r
 4. For visual proof, use the screenshot & annotation tools to circle the issue.
 5. Enter a project name and click "Export" to generate a PDF or Excel report (UI also supports EN / 中文 switching).
 
+Revisions are auto-saved in your browser. If the page is closed by accident, reopen the same video to restore them. The UI is designed for desktop; a window at least 1024px wide is recommended.
+
+### Shortcuts
+
+| Key | Action |
+|---|---|
+| `Space` | Play / pause |
+| `←` `→` | Back / forward 5 s |
+| `,` `.` | Previous / next frame |
+| `J` `K` `L` | Back 1 s / pause / play (repeat to speed up) |
+| `[` `]` | Previous / next revision |
+| `M` | Add a revision at the current time |
+| `?` | Show all shortcuts |
+
 ## License
 
 MIT © kane1a
