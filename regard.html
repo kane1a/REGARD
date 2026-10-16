@@ -48,7 +48,6 @@
   .brand{display:flex;align-items:center;gap:10px;padding-right:4px}
   .brand-mark{height:27px;width:auto;flex-shrink:0;display:block}
   .brand-txt{display:flex;flex-direction:column;line-height:1;gap:3px}
-  #langLabel{display:inline-block;min-width:30px;text-align:center;font-variant-numeric:tabular-nums}
   .brand-name{
     font-family:"Cinzel","Trajan Pro","Optima","Didot","Times New Roman",serif;
     font-size:15px;font-weight:600;letter-spacing:.30em;text-indent:.30em;
@@ -211,6 +210,12 @@
   }
   /* 時間軸：玻璃軌道 + 已播放漸層 */
   .seek-wrap{flex:1;min-width:130px;position:relative;display:flex;align-items:center;height:22px}
+  .vol-wrap{display:flex;align-items:center;gap:2px;flex:none}
+  .vol-btn{background:none!important;border:none!important;box-shadow:none!important;padding:6px!important;border-radius:8px!important;color:var(--muted)}
+  .vol-btn:hover{color:var(--text);background:var(--glass-hi)!important;transform:none!important}
+  .vol-slider{width:0;opacity:0;transition:width .2s,opacity .2s;accent-color:var(--accent);cursor:pointer;height:22px}
+  .vol-wrap:hover .vol-slider,.vol-wrap:focus-within .vol-slider{width:72px;opacity:1}
+  @media (max-width:700px){.vol-wrap .vol-slider{width:52px;opacity:1}}
   .seek-track{
     position:absolute;left:0;right:0;height:7px;border-radius:4px;pointer-events:none;overflow:hidden;
     background:var(--glass-hi);
@@ -716,6 +721,8 @@
     <symbol id="i-eraser" viewBox="0 0 24 24"><path d="M8.4 19.6H5.2l-1.8-1.8a1.2 1.2 0 010-1.7L13.6 5.9a1.2 1.2 0 011.7 0l4.8 4.8a1.2 1.2 0 010 1.7l-7.4 7.2z"/><path d="M10.2 9.3l5.5 5.5"/></symbol>
     <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4.4 6.9h15.2M9.4 6.9V5.2a1 1 0 011-1h3.2a1 1 0 011 1v1.7M6.4 6.9l.9 12.4a1.1 1.1 0 001.1 1h7.2a1.1 1.1 0 001.1-1l.9-12.4"/><path d="M10.4 10.4v6M13.6 10.4v6"/></symbol>
     <symbol id="i-more" viewBox="0 0 24 24"><circle cx="12" cy="5.2" r="1.5" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none"/><circle cx="12" cy="18.8" r="1.5" fill="currentColor" stroke="none"/></symbol>
+    <symbol id="i-vol" viewBox="0 0 24 24"><path d="M4 9.5v5h3.4L12 18.6V5.4L7.4 9.5H4z" stroke-linejoin="round"/><path d="M15.2 9.2a4 4 0 010 5.6M17.8 6.8a7.4 7.4 0 010 10.4"/></symbol>
+    <symbol id="i-mute" viewBox="0 0 24 24"><path d="M4 9.5v5h3.4L12 18.6V5.4L7.4 9.5H4z" stroke-linejoin="round"/><path d="M16 9.8l5.2 5.2M21.2 9.8L16 15"/></symbol>
   </defs>
 </svg>
 
@@ -728,18 +735,20 @@
     </div>
   </div>
   <button id="btnChangeVideo"><svg class="ic"><use href="#i-swap"/></svg><span data-i18n="changeVideo">開啟影片</span><span class="kbd-hint">Alt+N</span></button>
-  <button id="btnInfo" class="desktop-only"><svg class="ic"><use href="#i-info"/></svg><span data-i18n="videoInfo">影片資訊</span><span class="kbd-hint">I</span></button>
   <input id="projName" data-i18n-ph="projPh" placeholder="請先輸入專案名稱" required>
   <div class="spacer"></div>
-  <button id="btnTheme" class="desktop-only" title="Theme"><svg class="ic"><use href="#i-moon" id="themeIcon"/></svg></button>
   <div class="dropdown desktop-only">
-    <button id="btnLang"><svg class="ic"><use href="#i-globe"/></svg><span id="langLabel">繁中</span></button>
-    <div class="dd-menu" id="langMenu">
-      <div class="dd-item" data-lang="zh">繁體中文</div>
-      <div class="dd-item" data-lang="en">English</div>
+    <button id="btnMore" title="更多"><svg class="ic"><use href="#i-more"/></svg></button>
+    <div class="dd-menu" id="moreMenuDesk">
+      <div class="dd-item" id="mBtnInfo"><svg class="ic"><use href="#i-info"/></svg><span data-i18n="videoInfo">影片資訊</span><span class="kbd-hint">I</span></div>
+      <div class="dd-item" id="mBtnHotkeys"><svg class="ic"><use href="#i-keyboard"/></svg><span data-i18n="hotkeys">快捷鍵</span><span class="kbd-hint">?</span></div>
+      <div class="dd-item" id="mBtnTheme"><svg class="ic"><use href="#i-moon" id="themeIcon"/></svg><span data-i18n="toggleTheme">明亮／暗色</span></div>
+      <div class="dd-group"><div class="dd-glabel" data-i18n="language">語言</div>
+        <div class="dd-item" data-lang="zh">繁體中文</div>
+        <div class="dd-item" data-lang="en">English</div>
+      </div>
     </div>
   </div>
-  <button id="btnHotkeys" class="desktop-only"><svg class="ic"><use href="#i-keyboard"/></svg><span data-i18n="hotkeys">快捷鍵</span><span class="kbd-hint">?</span></button>
   <div class="dropdown mobile-only">
     <button id="btnMoreMenu" title="更多"><svg class="ic"><use href="#i-more"/></svg></button>
     <div class="dd-menu" id="moreMenu">
@@ -790,6 +799,10 @@
       <input id="timecode" value="00:00:00:00" spellcheck="false" data-i18n-title="tcTip" title="可直接輸入時間碼後按 Enter 跳轉">
       <div class="seek-wrap"><div class="seek-track" id="seekTrack"><div class="seek-fill" id="seekFill"></div><div class="seek-dot" id="seekDot"></div></div>
         <input type="range" id="seek" min="0" max="1000" value="0" data-i18n-aria="seekLabel" aria-label="播放進度" style="position:absolute;opacity:0;width:100%;height:100%;margin:0;cursor:pointer"></div>
+      <div class="vol-wrap" id="volWrap">
+        <button class="vol-btn" id="btnMute" type="button" data-i18n-title="volTip" data-i18n-aria="volLabel" aria-label="音量" title="音量"><svg class="ic"><use href="#i-vol" id="volIcon"/></svg></button>
+        <input type="range" class="vol-slider" id="volSlider" min="0" max="100" value="100" data-i18n-aria="volLabel" aria-label="音量">
+      </div>
       <div class="xsel" id="speedSel" data-value="1" title="Shift+< / Shift+>">
         <button type="button" class="xsel-btn"><span class="xsel-txt">1×</span><svg class="ic xsel-caret"><use href="#i-caret"/></svg></button>
         <div class="xsel-pop">
@@ -1326,7 +1339,8 @@ const I18N={
    closeVideoTip:'關閉影片（清除所有資訊）',seekLabel:'播放進度',tcTip:'可直接輸入時間碼後按 Enter 跳轉',
    drawDiscard:'捨棄目前的標註嗎？',
    catLabel:'分類',catSubtitle:'字幕',catAudio:'聲音',catVisual:'畫面',catEdit:'剪輯',catColor:'調色',catOther:'其他',
-   phraseLabel:'常用片語',hkShuttle:'倒退 10 秒 / 播放暫停 / 前進 10 秒',hkFrame:'逐幀倒退 / 前進',colCat:'分類'},
+   phraseLabel:'常用片語',hkShuttle:'倒退 10 秒 / 播放暫停 / 前進 10 秒',hkFrame:'逐幀倒退 / 前進',colCat:'分類',
+   volLabel:'音量',volTip:'音量（點擊靜音）'},
  en:{changeVideo:'Open Video',videoInfo:'Media Info',hotkeys:'Shortcuts',export:'Export',projPh:'Enter project name first',toggleTheme:'Light / Dark',appearance:'Appearance',language:'Language',info:'Info',toolArrow:'Arrow',toolLine:'Line',toolRect:'Rectangle',toolEllipse:'Ellipse',
   dropHere:'Drop a video here, or',pickFile:'Choose video file',dropNote:'mp4 / mov / webm · Nothing is uploaded anywhere',
   play:'Play',pause:'Pause',markBtn:'Add Note',markList:'Revision List',markTitle:'Add Revision Note',
@@ -1356,7 +1370,8 @@ const I18N={
    closeVideoTip:'Close video (clears everything)',seekLabel:'Seek',tcTip:'Type a timecode and press Enter to jump',
    drawDiscard:'Discard current annotations?',
    catLabel:'Category',catSubtitle:'Subtitles',catAudio:'Audio',catVisual:'Visuals',catEdit:'Editing',catColor:'Color',catOther:'Other',
-   phraseLabel:'Quick phrases',hkShuttle:'Back 10s / Play-Pause / Forward 10s',hkFrame:'Step one frame back / forward',colCat:'Category'}
+   phraseLabel:'Quick phrases',hkShuttle:'Back 10s / Play-Pause / Forward 10s',hkFrame:'Step one frame back / forward',colCat:'Category',
+   volLabel:'Volume',volTip:'Volume (click to mute)'}
 };
 function lsGet(k){try{return localStorage.getItem(k)}catch(e){return null}}
 function lsSet(k,v){try{localStorage.setItem(k,v)}catch(e){}}
@@ -1400,11 +1415,12 @@ function applyLang(){
   document.querySelectorAll('[data-i18n-ph]').forEach(el=>{el.placeholder=T(el.dataset.i18nPh)});
   document.querySelectorAll('[data-i18n-title]').forEach(el=>{el.title=T(el.dataset.i18nTitle)});
   document.querySelectorAll('[data-i18n-aria]').forEach(el=>{el.setAttribute('aria-label',T(el.dataset.i18nAria))});
-  document.getElementById('langLabel').textContent=LANG==='zh'?'繁中':'EN';
+  const _ll=document.getElementById('langLabel');if(_ll)_ll.textContent=LANG==='zh'?'繁中':'EN';
   const pl=document.querySelector('#btnPlay span[data-i18n]');
   if(pl)pl.textContent=(typeof video!=='undefined'&&video&&!video.paused)?T('pause'):T('play');
   if(typeof renderMarks==='function')renderMarks();
   if(typeof renderDlgChips==='function')renderDlgChips();
+  if(window.markDeskLang)window.markDeskLang();
   lsSet('rr_lang',LANG);
 }
 function applyTheme(t){
@@ -1419,22 +1435,29 @@ document.addEventListener('DOMContentLoaded',()=>{
   applyTheme(lsGet('rr_theme')||'dark');
   Draw.init();
   applyLang();
-  document.getElementById('btnTheme').onclick=()=>
+  const toggleTheme=()=>
     applyTheme(document.documentElement.getAttribute('data-theme')==='light'?'dark':'light');
+  window.toggleTheme=toggleTheme;
   // 統一關閉所有下拉浮層（點擊新選單時互斥，避免多個同時展開）
   const closeAllMenus=()=>{
     document.querySelectorAll('.dd-menu.show,.xsel.open,.sev-pop.show,.color-pop.show,.shape-wrap.open').forEach(el=>{el.classList.remove('show');el.classList.remove('open');});
   };
   window.closeAllMenus=closeAllMenus;
-  const lm=document.getElementById('langMenu');
-  document.getElementById('btnLang').onclick=e=>{e.stopPropagation();const willOpen=!lm.classList.contains('show');closeAllMenus();lm.classList.toggle('show',willOpen)};
-  lm.addEventListener('click',e=>{
-    const it=e.target.closest('.dd-item');if(!it)return;
-    LANG=it.dataset.lang;lm.classList.remove('show');applyLang();
-  });
-  const markSel=()=>lm.querySelectorAll('.dd-item').forEach(x=>x.classList.toggle('sel',x.dataset.lang===LANG));
-  markSel();
-  document.getElementById('btnLang').addEventListener('click',markSel);
+  // 桌面「更多」選單：影片資訊／快捷鍵／主題／語言
+  const mmd=document.getElementById('moreMenuDesk');
+  const btnMoreDesk=document.getElementById('btnMore');
+  if(mmd&&btnMoreDesk){
+    btnMoreDesk.onclick=e=>{e.stopPropagation();const willOpen=!mmd.classList.contains('show');closeAllMenus();mmd.classList.toggle('show',willOpen);markDeskLang();};
+    mmd.addEventListener('click',e=>{
+      const it=e.target.closest('.dd-item');if(!it)return;
+      if(it.id==='mBtnInfo'){closeAllMenus();showInfo();}
+      else if(it.id==='mBtnHotkeys'){closeAllMenus();$('hkDlg').showModal();centerDlg($('hkDlg'));}
+      else if(it.id==='mBtnTheme'){toggleTheme();}
+      else if(it.dataset.lang){LANG=it.dataset.lang;mmd.classList.remove('show');applyLang();}
+    });
+  }
+  const markDeskLang=()=>{const m=document.getElementById('moreMenuDesk');if(m)m.querySelectorAll('.dd-item[data-lang]').forEach(x=>x.classList.toggle('sel',x.dataset.lang===LANG));};
+  markDeskLang();window.markDeskLang=markDeskLang;
   // 全域：點擊下拉容器以外的地方就關閉所有浮層（含其他下拉，達成互斥）
   document.addEventListener('click',e=>{
     if(!e.target.closest('.dropdown')&&!e.target.closest('.xsel')&&!e.target.closest('.sev-custom')&&!e.target.closest('.color-wrap')&&!e.target.closest('.shape-wrap'))
@@ -1449,8 +1472,8 @@ document.addEventListener('DOMContentLoaded',()=>{
     mm.addEventListener('click',e=>{
       const it=e.target.closest('.dd-item');if(!it)return;
       closeAllMenus();  // 先關掉自己，避免與觸發的桌面版按鈕連鎖開啟
-      if(it.id==='mBtnInfo'){document.getElementById('btnInfo').click();}
-      else if(it.id==='mBtnTheme'){document.getElementById('btnTheme').click();}
+      if(it.id==='mBtnInfo'){showInfo();}
+      else if(it.id==='mBtnTheme'){toggleTheme();}
       else if(it.dataset.lang){LANG=it.dataset.lang;applyLang();}
     });
   }
@@ -1513,8 +1536,7 @@ document.querySelectorAll('dialog').forEach(d=>{
 /* 修改視窗：整體尺寸依影片比例自適應（直式窄、橫式寬），保持一般彈窗大小 */
 function fitMarkDlg(){
   const d=$('markDlg'),shot=$('dlgShot');
-  const vw=video.videoWidth||16,vh=video.videoHeight||9;
-  const aspect=vw/vh;
+  const aspect=pendingAspect||16/9;
   const portrait=aspect<1;
   const touch=matchMedia('(max-width:1180px)').matches;
   const narrow=matchMedia('(max-width:700px)').matches;
@@ -1533,8 +1555,8 @@ function fitMarkDlg(){
     if(portrait&&h>innerHeight*0.34){h=innerHeight*0.34;w=h*aspect;}
   }else{
     // 桌面：加寬彈窗，截圖看得清楚
-    if(portrait){h=Math.min(400,innerHeight*0.48);w=h*aspect;}
-    else{w=Math.min(600,innerWidth*0.46);h=w/aspect;}
+    if(portrait){h=Math.min(440,innerHeight*0.52);w=h*aspect;}
+    else{w=Math.min(680,innerWidth*0.5);h=w/aspect;}
   }
   shot.style.width=Math.round(w)+'px';
   shot.style.height=Math.round(h)+'px';
@@ -1652,6 +1674,16 @@ function togglePlay(){
   if(video.paused){const pr=video.play();if(pr&&pr.catch)pr.catch(()=>{});}
   else video.pause();
 }
+function syncVolIcon(){
+  const ic=$('volIcon');if(!ic)return;
+  ic.setAttribute('href',(video.muted||video.volume===0)?'#i-mute':'#i-vol');
+}
+$('volSlider').addEventListener('input',e=>{
+  const v=+e.target.value/100;
+  video.volume=v;video.muted=v===0;syncVolIcon();
+});
+$('btnMute').onclick=()=>{video.muted=!video.muted;if(!video.muted&&video.volume===0){video.volume=0.5;$('volSlider').value=50;}syncVolIcon();};
+video.addEventListener('volumechange',()=>{const vs=$('volSlider');if(vs)vs.value=Math.round(video.volume*100);syncVolIcon();});
 $('btnBack').onclick=()=>video.currentTime-=5;
 $('btnFwd').onclick=()=>video.currentTime+=5;
 let tcEditing=false;
@@ -1938,6 +1970,7 @@ function openMarkDlg(){
 function updateDrawFlag(){
   $('btnDraw').classList.toggle('active',pendingStrokes.length>0);
 }
+let pendingAspect=16/9; // 截圖真實長寬比（用圖片 natural 尺寸，不用 video metadata）
 function addMark(){
   if(!(video.videoWidth>0)||video.readyState<2){
     appAlert(T('cantGrab'));
@@ -1949,6 +1982,10 @@ function addMark(){
   video.pause();
   pendingBase=grabFrame();
   pendingShot=pendingBase;
+  pendingAspect=16/9;
+  const _im=new Image();
+  _im.onload=()=>{if(_im.naturalWidth>0&&_im.naturalHeight>0){pendingAspect=_im.naturalWidth/_im.naturalHeight;if($('markDlg').open)fitMarkDlg();}};
+  _im.src=pendingBase;
   pendingStrokes=[];
   pendingRefs=[];
   $('dlgRefUrl').value='';$('dlgRefUrl').style.borderColor='';$('refErr').style.display='none';
@@ -1962,6 +1999,10 @@ function editMark(i){
   const m=marks[i];
   editIndex=i;
   dlgCat=m.cat||'其他';
+  pendingAspect=16/9;
+  if(m.shot){const _im=new Image();
+    _im.onload=()=>{if(_im.naturalWidth>0&&_im.naturalHeight>0){pendingAspect=_im.naturalWidth/_im.naturalHeight;if($('markDlg').open)fitMarkDlg();}};
+    _im.src=m.shot;}
   pendingT=m.t;
   pendingBase=m.base||m.shot;
   pendingStrokes=m.strokes?JSON.parse(JSON.stringify(m.strokes)):[];
@@ -2487,10 +2528,9 @@ function imgDim(dataURL){
 }
 
 /* ---- 影片資訊偵測 ---- */
-$('btnInfo').onclick=()=>showInfo();
+window.showInfo=showInfo;
 $('infoClose').onclick=()=>$('infoDlg').close();
 $('hkClose').onclick=()=>$('hkDlg').close();
-$('btnHotkeys').onclick=()=>{$('hkDlg').showModal();centerDlg($('hkDlg'))};
 // ---- 本地 MP4/MOV 解析器（逐 box 定位 moov，支援 moov 在檔尾的大檔） ----
 async function readBytes(file,offset,len){
   return new Uint8Array(await file.slice(offset,Math.min(offset+len,file.size)).arrayBuffer());
