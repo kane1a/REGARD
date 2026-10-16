@@ -13,6 +13,9 @@ Everything runs on your own machine — **your video is never uploaded and never
 ## Features
 
 - **Time-coded marks** — hit `M` at the moment that needs a change (or click "Mark this point"); timecodes are frame-accurate (`HH:MM:SS:FF`, frame rate auto-detected)
+- **J/K/L + frame stepping** — `J` back 10s, `K` play/pause, `L` forward 10s, `,`/`.` step one frame
+- **Quick phrases** — one-click common notes (subtitle typo, audio cuts out…)
+- **Category tags** — Subtitles / Audio / Visuals / Editing / Color / Other, included in exports
 - **Screenshot annotation** — pen, arrow, line, rectangle, ellipse; custom colors (SV picker + hex codes), four stroke widths
 - **Severity levels** — Must Fix / Suggested / FYI, switchable directly on each card
 - **References** — attach URL links (press Enter to add) or upload reference images per mark
@@ -48,6 +51,8 @@ Everything runs on your own machine — **your video is never uploaded and never
 |---|---|
 | `Space` | Play / pause |
 | `←` `→` | Back / forward 5 seconds |
+| `J` `K` `L` | Back 10s / Play-Pause / Forward 10s |
+| `,` `.` | Step one frame back / forward |
 | `M` | Add a mark at this time |
 | `Shift`+`<` `>` | Slower / faster playback |
 | `I` | Video info |
