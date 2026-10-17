@@ -152,12 +152,7 @@
     align-items:center;justify-content:center;padding:0 4px;
   }
   #btnMarks{position:relative}
-  @media (max-width:700px){
-    .marks-col{width:min(400px,94vw)}
-    .controls{bottom:16px;padding:6px 8px;gap:2px}
-    .controls .seek-wrap{min-width:100px}
-  }
-  @media (max-width:960px){.brand-tag{display:none}#projName{max-width:130px}}
+
 
   #dropzone{
     flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;min-height:200px;
@@ -213,7 +208,7 @@
   .vol-btn:hover{color:var(--text);background:var(--card2)!important;opacity:1}
   .vol-slider{width:0;opacity:0;transition:width .2s,opacity .2s;accent-color:var(--accent);cursor:pointer}
   .vol-wrap:hover .vol-slider,.vol-wrap:focus-within .vol-slider{width:70px;opacity:1;margin-right:6px}
-  @media (max-width:700px){.vol-wrap .vol-slider{width:48px;opacity:1;margin-right:4px}}
+
   .xsel{position:relative;flex:none}
   .xsel-btn{
     display:inline-flex;align-items:center;gap:4px;cursor:pointer;font-size:12px;font-weight:500;
@@ -294,16 +289,13 @@
   .dlg-x:hover{background:var(--hairline2);color:var(--text);opacity:1}
   .dlg-inner{padding:0 20px 20px;overflow-y:auto;max-height:calc(92vh - 70px)}
   /* 手機：底部 sheet */
-  @media (max-width:700px){
-    dialog{max-width:100vw;width:100vw;margin-bottom:0;border-radius:16px 16px 0 0;max-height:94vh}
-    .dlg-inner{max-height:calc(94vh - 70px)}
-  }
+
 
   /* 標記對話框：截圖永遠完整顯示、不裁切不變形 */
   #markDlg{width:640px}
   #markDlg .shot{
-    display:block;width:100%;height:auto!important;max-height:36vh;object-fit:contain;
-    border-radius:10px;background:#000;margin-bottom:12px;
+    display:block;width:auto;max-width:100%;height:auto;max-height:38vh;object-fit:contain;
+    border-radius:10px;background:#000;margin:0 auto 12px;
   }
   #markDlg .dlg-row{
     position:sticky;bottom:0;background:var(--bg2);
@@ -422,18 +414,8 @@
   .cp-hue{height:14px;border-radius:7px;background:linear-gradient(to right,#ff0000,#ffff00,#00ff00,#00ffff,#0000ff,#ff00ff,#ff0000)}
 
   /* 響應式 */
-  .desktop-only{display:inline-flex}
-  .mobile-only{display:none}
-  @media (max-width:1180px){
-    .desktop-only{display:none!important}
-    .mobile-only{display:inline-flex}
-    #markDlg{width:min(94vw,640px)}
-  }
-  @media (max-width:700px){
-    .brand-tag{display:none}
-    #projName{max-width:110px;min-width:80px}
-    #timecode{width:88px}
-  }
+
+
 </style>
 
 </head>
@@ -488,7 +470,7 @@
   <button id="btnChangeVideo"><svg class="ic"><use href="#i-swap"/></svg><span data-i18n="changeVideo">開啟影片</span><span class="kbd-hint">Alt+N</span></button>
   <input id="projName" data-i18n-ph="projPh" placeholder="請先輸入專案名稱" required>
   <div class="spacer"></div>
-  <div class="dropdown desktop-only">
+  <div class="dropdown">
     <button id="btnMore" title="更多"><svg class="ic"><use href="#i-more"/></svg></button>
     <div class="dd-menu" id="moreMenuDesk">
       <div class="dd-item" id="mBtnInfo"><svg class="ic"><use href="#i-info"/></svg><span data-i18n="videoInfo">影片資訊</span><span class="kbd-hint">I</span></div>
@@ -500,21 +482,7 @@
       </div>
     </div>
   </div>
-  <div class="dropdown mobile-only">
-    <button id="btnMoreMenu" title="更多"><svg class="ic"><use href="#i-more"/></svg></button>
-    <div class="dd-menu" id="moreMenu">
-      <div class="dd-group"><div class="dd-glabel" data-i18n="appearance">外觀</div>
-        <div class="dd-item" id="mBtnTheme"><svg class="ic"><use href="#i-moon" id="mThemeIcon"/></svg><span data-i18n="toggleTheme">明亮／暗色</span></div>
-      </div>
-      <div class="dd-group"><div class="dd-glabel" data-i18n="language">語言</div>
-        <div class="dd-item" data-lang="zh"><svg class="ic"><use href="#i-globe"/></svg>繁體中文</div>
-        <div class="dd-item" data-lang="en"><svg class="ic"><use href="#i-globe"/></svg>English</div>
-      </div>
-      <div class="dd-group"><div class="dd-glabel" data-i18n="info">資訊</div>
-        <div class="dd-item" id="mBtnInfo"><svg class="ic"><use href="#i-info"/></svg><span data-i18n="videoInfo">影片資訊</span></div>
-      </div>
-    </div>
-  </div>
+
   <button id="btnMarks" class="icon-btn" type="button" data-i18n-title="marksTitle" data-i18n-aria="markList" aria-label="修改清單" title="修改清單"><svg class="ic"><use href="#i-list"/></svg><span id="markCountBadge" style="display:none"></span></button>
   <div class="dropdown export-dropdown">
     <button id="btnExport" class="primary"><svg class="ic"><use href="#i-export"/></svg><span data-i18n="export">匯出報告</span><span class="kbd-hint">Alt+E</span></button>
@@ -980,15 +948,11 @@ const Draw={
     const img=$('drawImg'),dlg=$('drawDlg');
     const nw=img.naturalWidth||16,nh=img.naturalHeight||9,ar=nw/nh;
     const portrait=ar<1;
-    const touch=matchMedia('(max-width:1180px)').matches;
     const barW=$('drawBar').scrollWidth||440;
-    const margin=touch?20:24;                       // 左右安全邊距
-    // 可用寬：永遠不超過視窗（行動裝置強制鎖定）
+    const margin=24;
     const maxW=Math.max(160,innerWidth-margin);
-    // 可用高：扣掉標題列＋工具列＋按鈕列；行動裝置直式再收斂，避免視窗被拉太長
-    const chrome=touch?(portrait?300:250):(portrait?210:230);
+    const chrome=portrait?210:230;
     let maxH=Math.max(150,innerHeight-chrome);
-    if(touch&&portrait)maxH=Math.min(maxH,Math.round(innerHeight*0.52));
     // 等比縮放，使圖完整落在 maxW × maxH 之內（contain）
     let w=maxW,h=w/ar;
     if(h>maxH){h=maxH;w=h*ar;}
@@ -1226,18 +1190,6 @@ document.addEventListener('DOMContentLoaded',()=>{
   });
 
   // 手機版「更多」選單：影片資訊／明暗切換／語言，收合桌面版分散的按鈕
-  const mm=document.getElementById('moreMenu');
-  const btnMore=document.getElementById('btnMoreMenu');
-  if(mm&&btnMore){
-    btnMore.onclick=e=>{e.stopPropagation();const willOpen=!mm.classList.contains('show');closeAllMenus();mm.classList.toggle('show',willOpen)};
-    mm.addEventListener('click',e=>{
-      const it=e.target.closest('.dd-item');if(!it)return;
-      closeAllMenus();  // 先關掉自己，避免與觸發的桌面版按鈕連鎖開啟
-      if(it.id==='mBtnInfo'){showInfo();}
-      else if(it.id==='mBtnTheme'){toggleTheme();}
-      else if(it.dataset.lang){LANG=it.dataset.lang;applyLang();}
-    });
-  }
 });
 </script>
 <script>
@@ -1254,8 +1206,6 @@ function saveDlgPos(d){try{
 function centerDlg(d){
   const saved=loadDlgPos()[d.id];
   const hasSaved=saved&&saved.left&&saved.top;   // 空字串視為沒存過
-  const isTouch=matchMedia('(max-width:1180px)').matches;  // 觸控裝置（手機/平板）強制置中，不套用拖曳記憶位置，也不設 inline left/top（交由 CSS margin:auto 處理）
-  if(isTouch){ d.style.left='';d.style.top='';return; }
   if(hasSaved){
     if(saved.width)d.style.width=saved.width;
     if(saved.height)d.style.height=saved.height;
@@ -1264,7 +1214,8 @@ function centerDlg(d){
     d.style.left=L+'px';d.style.top=T+'px';
     return;
   }
-  // 未存過或觸控裝置 → 等版面算完再置中
+  // 未存過 → 等版面算完再置中（margin:0 避免與 left/top 衝突）
+  d.style.margin='0';
   d.style.left='';d.style.top='';
   requestAnimationFrame(()=>{
     d.style.left=Math.max(0,(innerWidth-d.offsetWidth)/2)+'px';
@@ -1299,35 +1250,13 @@ function fitMarkDlg(){
   const d=$('markDlg'),shot=$('dlgShot');
   const aspect=pendingAspect||16/9;
   const portrait=aspect<1;
-  const touch=matchMedia('(max-width:1180px)').matches;
-  const narrow=matchMedia('(max-width:700px)').matches;
   let w,h;
-  if(touch){
-    // 行動裝置：預覽寬度吃滿彈窗內容區（橫式才不會小到看不清），
-    // 高度上限收斂，確保備註欄與下方取消／儲存按鈕完整留在視窗內
-    const dlgPad=narrow?36:48;
-    const availW=Math.min(innerWidth*(narrow?0.92:0.86),narrow?520:640)-dlgPad;
-    // 其餘元件（標題列＋時間碼＋備註欄＋參考列＋等級列＋按鈕列）需要保留的高度
-    const reserved=narrow?330:340;
-    const availH=Math.max(110,innerHeight*0.94-reserved);
-    w=availW; h=w/aspect;
-    if(h>availH){h=availH;w=h*aspect;}
-    // 直式影片再收一點，避免整個彈窗過長
-    if(portrait&&h>innerHeight*0.34){h=innerHeight*0.34;w=h*aspect;}
-  }else{
-    // 桌面：加寬彈窗，截圖看得清楚
-    if(portrait){h=Math.min(440,innerHeight*0.52);w=h*aspect;}
-    else{w=Math.min(680,innerWidth*0.5);h=w/aspect;}
-  }
-  shot.style.width=Math.round(w)+'px';
-  shot.style.height=Math.round(h)+'px';
-  if(touch){
-    // 行動裝置寬度交給 CSS（滿版上限），不要用 inline width 撐開
-    d.style.width='';
-  }else{
-    const dlgW=Math.max(portrait?380:Math.round(w)+40,360);
-    if(!loadDlgPos()[d.id]||!loadDlgPos()[d.id].width)d.style.width=dlgW+'px';
-  }
+  // 桌面：加寬彈窗，截圖看得清楚
+  if(portrait){h=Math.min(440,innerHeight*0.52);w=h*aspect;}
+  else{w=Math.min(680,innerWidth*0.5);h=w/aspect;}
+  /* 截圖尺寸交給 CSS（width:100%;height:auto），永不變形 */
+  const dlgW=Math.max(portrait?380:Math.round(w)+40,360);
+  if(!loadDlgPos()[d.id]||!loadDlgPos()[d.id].width)d.style.width=dlgW+'px';
   /* Draw 只有在標註視窗開啟時才需要同步；markDlg 不含畫布，此處不需呼叫 */
 }
 addEventListener('resize',()=>{if($('markDlg').open)fitMarkDlg()});
@@ -1455,7 +1384,8 @@ function pokeUI(){
     }
   },2600);
 }
-['mousemove','touchstart'].forEach(ev=>document.addEventListener(ev,pokeUI,{passive:true}));
+document.addEventListener('mousemove',pokeUI,{passive:true});
+video.addEventListener('play',pokeUI);video.addEventListener('pause',pokeUI);
 /* ---- 時間軸標記點 ---- */
 function renderMarkDots(){
   const box=$('markDots');if(!box||!video.duration)return;box.innerHTML='';
@@ -1503,15 +1433,9 @@ function applyVideoAspect(){
   const w=video.videoWidth,h=video.videoHeight;
   const root=document.documentElement;
   if(!w||!h){root.style.removeProperty('--video-ar');root.style.removeProperty('--video-maxh');return;}
-  const ar=w/h, portrait=ar<1, touch=matchMedia('(max-width:1180px)').matches;
+  const ar=w/h, portrait=ar<1;
   root.style.setProperty('--video-ar',`${w} / ${h}`);
-  if(!touch){root.style.removeProperty('--video-maxh');return;}
-  const narrow=matchMedia('(max-width:700px)').matches;
-  // 直式影片給較高上限（但仍留空間給控制列與清單）；橫式維持原本比例即可
-  let maxh;
-  if(portrait) maxh = narrow ? 58 : 62;
-  else         maxh = narrow ? 46 : 56;
-  root.style.setProperty('--video-maxh',maxh+'vh');
+  root.style.removeProperty('--video-maxh');return;
 }
 addEventListener('resize',()=>{if(video&&video.videoWidth)applyVideoAspect()});
 addEventListener('orientationchange',()=>setTimeout(()=>{if(video&&video.videoWidth)applyVideoAspect()},200));
