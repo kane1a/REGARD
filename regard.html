@@ -53,10 +53,7 @@
   .brand-txt{display:flex;flex-direction:column;line-height:1.15}
   .brand-name{font-size:14px;font-weight:700;letter-spacing:.12em;color:var(--text)}
   .brand-tag{font-size:9px;letter-spacing:.18em;color:var(--text3);font-weight:500}
-  header{
-    display:flex;align-items:center;gap:10px;padding:10px 16px;position:relative;z-index:300;
-    background:var(--bg);border-bottom:.5px solid var(--hairline);
-  }
+  header{display:flex;align-items:center;gap:10px}
   #projName{
     background:transparent;border:none;color:var(--text);font-size:13px;
     padding:7px 4px;min-width:120px;max-width:220px;font-family:inherit;outline:none;
@@ -104,11 +101,64 @@
   .dd-group:first-child{margin-top:0}
   .dd-glabel{font-size:11px;font-weight:600;color:var(--text3);padding:8px 12px 4px;text-transform:uppercase;letter-spacing:.06em}
 
-  /* ---------- 版面 ---------- */
-  main{flex:1;display:flex;min-height:0;overflow:hidden}
-  @media (max-width:1180px){.marks-col{width:320px}}
-  @media (max-width:960px){.brand-tag{display:none}.marks-col{width:280px}#projName{max-width:130px}}
-  .player-col{flex:1;display:flex;flex-direction:column;min-width:0;background:#000}
+  /* ---------- 版面：沉浸式 ---------- */
+  main{flex:1;display:flex;min-height:0;overflow:hidden;position:relative;background:#000}
+  .player-col{position:absolute;inset:0;display:flex;flex-direction:column}
+  #videoWrap{position:absolute;inset:0}
+  /* header 懸浮 */
+  header{
+    position:absolute;top:0;left:0;right:0;z-index:150;
+    background:linear-gradient(to bottom,rgba(0,0,0,.55),transparent);
+    border-bottom:none;padding:14px 20px;
+    transition:opacity .3s,transform .3s;
+  }
+  [data-theme="light"] header{background:linear-gradient(to bottom,rgba(245,245,247,.92),rgba(245,245,247,0))}
+  header.ui-hidden{opacity:0;transform:translateY(-12px);pointer-events:none}
+  /* 控制列懸浮膠囊 */
+  .controls{
+    position:absolute;bottom:28px;left:50%;transform:translateX(-50%);z-index:150;
+    background:rgba(28,28,30,.88);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);
+    border:.5px solid rgba(255,255,255,.16);border-radius:18px;
+    padding:8px 10px;box-shadow:0 12px 40px rgba(0,0,0,.45);
+    transition:opacity .3s,transform .3s;max-width:94vw;
+  }
+  [data-theme="light"] .controls{background:rgba(255,255,255,.9);border-color:rgba(0,0,0,.08)}
+  .controls.ui-hidden{opacity:0;transform:translateX(-50%) translateY(16px);pointer-events:none}
+  .controls .seek-wrap{min-width:180px}
+  /* 時間軸標記點 */
+  .mark-dot{
+    position:absolute;top:50%;width:9px;height:9px;border-radius:50%;
+    background:var(--accent);border:1.5px solid #fff;
+    transform:translate(-50%,-50%);cursor:pointer;z-index:3;
+    transition:transform .15s;box-shadow:0 1px 4px rgba(0,0,0,.4);
+  }
+  .mark-dot:hover{transform:translate(-50%,-50%) scale(1.5)}
+  /* 修改清單：右側滑出面板 */
+  .marks-col{
+    position:fixed;top:0;right:0;bottom:0;width:min(400px,92vw);z-index:180;
+    background:var(--bg2);border-left:.5px solid var(--hairline);
+    transform:translateX(102%);transition:transform .35s cubic-bezier(.32,.72,0,1);
+    box-shadow:-16px 0 48px rgba(0,0,0,.35);display:flex;
+  }
+  .marks-col.open{transform:translateX(0)}
+  .marks-scrim{
+    position:fixed;inset:0;z-index:170;background:rgba(0,0,0,.35);
+    opacity:0;pointer-events:none;transition:opacity .3s;
+  }
+  .marks-scrim.open{opacity:1;pointer-events:auto}
+  #markCountBadge{
+    position:absolute;top:2px;right:2px;min-width:16px;height:16px;border-radius:8px;
+    background:var(--danger);color:#fff;font-size:10px;font-weight:700;
+    align-items:center;justify-content:center;padding:0 4px;
+  }
+  #btnMarks{position:relative}
+  @media (max-width:700px){
+    .marks-col{width:min(400px,94vw)}
+    .controls{bottom:16px;padding:6px 8px;gap:2px}
+    .controls .seek-wrap{min-width:100px}
+  }
+  @media (max-width:960px){.brand-tag{display:none}#projName{max-width:130px}}
+
   #dropzone{
     flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;min-height:200px;
     color:var(--text2);background:var(--bg);border:none;
@@ -135,10 +185,7 @@
   .dw-cmd{font-family:ui-monospace,Menlo,monospace;font-size:12px;background:var(--card2);padding:8px 14px;border-radius:8px;color:var(--text)}
 
   /* ---------- 播放控制列 ---------- */
-  .controls{
-    display:flex;align-items:center;gap:4px;padding:8px 12px;background:var(--bg);
-    border-top:.5px solid var(--hairline);
-  }
+  .controls{display:flex;align-items:center;gap:4px}
   .controls>button{background:transparent;color:var(--text);padding:8px;border-radius:8px;font-weight:400}
   .controls>button:hover{background:var(--card2);opacity:1}
   .controls>button.primary{background:var(--accent);color:var(--accent-ink);font-weight:600;padding:8px 16px}
@@ -186,7 +233,7 @@
   .xsel-opt.sel{font-weight:600;color:var(--accent)}
 
   /* ---------- 右側清單（iOS 表格式） ---------- */
-  .marks-col{width:360px;flex:none;display:flex;flex-direction:column;min-height:0;background:var(--bg);border-left:.5px solid var(--hairline)}
+
   .marks-head{
     display:flex;align-items:center;justify-content:space-between;
     padding:14px 16px 10px;
@@ -224,6 +271,8 @@
   .mark-ref{display:block;font-size:12px;color:var(--accent);margin-top:2px;text-decoration:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .mark-more{font-size:11px;color:var(--text3);margin-top:2px}
   .mark-actions{flex:none;display:flex;gap:2px}
+  .sev-badge{display:inline-flex;align-items:center;gap:5px;font-size:11px;color:var(--text2);margin-top:6px;font-weight:500}
+  .sev-badge .dot-r{width:7px;height:7px;border-radius:50%}
   .mark-del,.mark-goto{background:none;border:none;color:var(--text3);padding:8px;border-radius:8px}
   .mark-goto:hover{color:var(--accent);background:var(--card2);opacity:1}
   .mark-del:hover{color:var(--danger);background:var(--card2);opacity:1}
@@ -381,13 +430,8 @@
     #markDlg{width:min(94vw,640px)}
   }
   @media (max-width:700px){
-    header{padding:8px 12px;gap:8px}
     .brand-tag{display:none}
     #projName{max-width:110px;min-width:80px}
-    .marks-col{display:none}
-    .marks-col.show-mobile{display:flex;position:fixed;inset:auto 0 0 0;top:64px;z-index:250;background:var(--bg);width:100%;border-left:none;border-top:.5px solid var(--hairline)}
-    .controls{padding:6px 8px;gap:2px}
-    .controls>button{padding:8px 10px}
     #timecode{width:88px}
   }
 </style>
@@ -429,6 +473,7 @@
     <symbol id="i-more" viewBox="0 0 24 24"><circle cx="12" cy="5.2" r="1.5" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none"/><circle cx="12" cy="18.8" r="1.5" fill="currentColor" stroke="none"/></symbol>
     <symbol id="i-vol" viewBox="0 0 24 24"><path d="M4 9.5v5h3.4L12 18.6V5.4L7.4 9.5H4z" stroke-linejoin="round"/><path d="M15.2 9.2a4 4 0 010 5.6M17.8 6.8a7.4 7.4 0 010 10.4"/></symbol>
     <symbol id="i-mute" viewBox="0 0 24 24"><path d="M4 9.5v5h3.4L12 18.6V5.4L7.4 9.5H4z" stroke-linejoin="round"/><path d="M16 9.8l5.2 5.2M21.2 9.8L16 15"/></symbol>
+    <symbol id="i-list" viewBox="0 0 24 24"><path d="M8.5 6.5h12M8.5 12h12M8.5 17.5h12"/><circle cx="4.8" cy="6.5" r="1.1" fill="currentColor" stroke="none"/><circle cx="4.8" cy="12" r="1.1" fill="currentColor" stroke="none"/><circle cx="4.8" cy="17.5" r="1.1" fill="currentColor" stroke="none"/></symbol>
   </defs>
 </svg>
 
@@ -470,6 +515,7 @@
       </div>
     </div>
   </div>
+  <button id="btnMarks" class="icon-btn" type="button" data-i18n-title="marksTitle" data-i18n-aria="markList" aria-label="修改清單" title="修改清單"><svg class="ic"><use href="#i-list"/></svg><span id="markCountBadge" style="display:none"></span></button>
   <div class="dropdown export-dropdown">
     <button id="btnExport" class="primary"><svg class="ic"><use href="#i-export"/></svg><span data-i18n="export">匯出報告</span><span class="kbd-hint">Alt+E</span></button>
     <div class="dd-menu" id="exportMenu">
@@ -503,7 +549,7 @@
       <button id="btnBack"><svg class="ic"><use href="#i-back5"/></svg>5s<span class="kbd-hint">←</span></button>
       <button id="btnFwd"><svg class="ic"><use href="#i-fwd5"/></svg>5s<span class="kbd-hint">→</span></button>
       <input id="timecode" value="00:00:00:00" spellcheck="false" data-i18n-title="tcTip" title="可直接輸入時間碼後按 Enter 跳轉">
-      <div class="seek-wrap"><div class="seek-track" id="seekTrack"><div class="seek-fill" id="seekFill"></div><div class="seek-dot" id="seekDot"></div></div>
+      <div class="seek-wrap"><div class="seek-track" id="seekTrack"><div class="seek-fill" id="seekFill"></div><div id="markDots"></div><div class="seek-dot" id="seekDot"></div></div>
         <input type="range" id="seek" min="0" max="1000" value="0" data-i18n-aria="seekLabel" aria-label="播放進度" style="position:absolute;opacity:0;width:100%;height:100%;margin:0;cursor:pointer"></div>
       <div class="vol-wrap" id="volWrap">
         <button class="vol-btn" id="btnMute" type="button" data-i18n-title="volTip" data-i18n-aria="volLabel" aria-label="音量" title="音量"><svg class="ic"><use href="#i-vol" id="volIcon"/></svg></button>
@@ -523,8 +569,12 @@
     </div>
   </section>
 
-  <aside class="marks-col">
-    <div class="marks-head"><h2 data-i18n="markList">修改清單</h2><span id="markCount">0</span></div>
+  <div class="marks-scrim" id="marksScrim"></div>
+  <aside class="marks-col" id="marksCol">
+    <div class="marks-head"><h2 data-i18n="markList">修改清單</h2>
+      <div style="display:flex;align-items:center;gap:8px"><span id="markCount">0</span>
+      <button class="dlg-x" type="button" id="btnMarksClose"><svg class="ic"><use href="#i-close"/></svg></button></div>
+    </div>
     <div id="markList"></div>
   </aside>
 </main>
@@ -1050,7 +1100,7 @@ const I18N={
    catLabel:'分類',catSubtitle:'字幕',catAudio:'聲音',catVisual:'畫面',catEdit:'剪輯',catColor:'調色',catOther:'其他',
    phraseLabel:'常用片語',hkShuttle:'倒退 10 秒 / 播放暫停 / 前進 10 秒',hkFrame:'逐幀倒退 / 前進',colCat:'分類',
    volLabel:'音量',volTip:'音量（點擊靜音）',sevLabel:'嚴重度',
-   refLabel:'參考資料（選填）'},
+   refLabel:'參考資料（選填）',marksTitle:'修改清單'},
  en:{changeVideo:'Open Video',videoInfo:'Media Info',hotkeys:'Shortcuts',export:'Export',projPh:'Enter project name first',toggleTheme:'Light / Dark',appearance:'Appearance',language:'Language',info:'Info',toolArrow:'Arrow',toolLine:'Line',toolRect:'Rectangle',toolEllipse:'Ellipse',
   dropHere:'Drop a video here, or',pickFile:'Choose video file',dropNote:'mp4 / mov / webm · Nothing is uploaded anywhere',
   play:'Play',pause:'Pause',markBtn:'Add Note',markList:'Revision List',markTitle:'Add Revision Note',
@@ -1082,7 +1132,7 @@ const I18N={
    catLabel:'Category',catSubtitle:'Subtitles',catAudio:'Audio',catVisual:'Visuals',catEdit:'Editing',catColor:'Color',catOther:'Other',
    phraseLabel:'Quick phrases',hkShuttle:'Back 10s / Play-Pause / Forward 10s',hkFrame:'Step one frame back / forward',colCat:'Category',
    volLabel:'Volume',volTip:'Volume (click to mute)',sevLabel:'Severity',
-   refLabel:'Reference (optional)'}
+   refLabel:'Reference (optional)',marksTitle:'Marks'}
 };
 function lsGet(k){try{return localStorage.getItem(k)}catch(e){return null}}
 function lsSet(k,v){try{localStorage.setItem(k,v)}catch(e){}}
@@ -1129,7 +1179,7 @@ function applyLang(){
   const _ll=document.getElementById('langLabel');if(_ll)_ll.textContent=LANG==='zh'?'繁中':'EN';
   const pl=document.querySelector('#btnPlay span[data-i18n]');
   if(pl)pl.textContent=(typeof video!=='undefined'&&video&&!video.paused)?T('pause'):T('play');
-  if(typeof renderMarks==='function')renderMarks();
+  if(typeof renderMarks==='function'){renderMarks();}
   if(typeof renderDlgChips==='function')renderDlgChips();
   if(window.markDeskLang)window.markDeskLang();
   lsSet('rr_lang',LANG);
@@ -1384,6 +1434,37 @@ function syncPlayBtn(){
 function togglePlay(){
   if(video.paused){const pr=video.play();if(pr&&pr.catch)pr.catch(()=>{});}
   else video.pause();
+}
+/* ---- 沉浸式：側滑面板 ---- */
+function setMarksOpen(open){
+  $('marksCol').classList.toggle('open',open);
+  $('marksScrim').classList.toggle('open',open);
+}
+$('btnMarks').onclick=()=>setMarksOpen(!$('marksCol').classList.contains('open'));
+$('btnMarksClose').onclick=()=>setMarksOpen(false);
+$('marksScrim').onclick=()=>setMarksOpen(false);
+/* ---- 沉浸式：UI 自動隱藏 ---- */
+let uiHideTimer=null;
+function pokeUI(){
+  const h=document.querySelector('header'),c=$('ctrlBar');
+  h.classList.remove('ui-hidden');c.classList.remove('ui-hidden');
+  clearTimeout(uiHideTimer);
+  uiHideTimer=setTimeout(()=>{
+    if(!video.paused&&!document.querySelector('dialog[open]')&&!$('marksCol').classList.contains('open')){
+      h.classList.add('ui-hidden');c.classList.add('ui-hidden');
+    }
+  },2600);
+}
+['mousemove','touchstart'].forEach(ev=>document.addEventListener(ev,pokeUI,{passive:true}));
+/* ---- 時間軸標記點 ---- */
+function renderMarkDots(){
+  const box=$('markDots');if(!box||!video.duration)return;box.innerHTML='';
+  marks.forEach((m,i)=>{
+    const d=document.createElement('div');d.className='mark-dot';d.title=fmt(m.t);
+    d.style.left=(m.t/video.duration*100)+'%';
+    d.onclick=e=>{e.stopPropagation();video.currentTime=m.t;editMark(i);};
+    box.appendChild(d);
+  });
 }
 function syncVolIcon(){
   const ic=$('volIcon');if(!ic)return;
@@ -1692,6 +1773,7 @@ function addMark(){
     appAlert(T('cantGrab'));
     return;
   }
+  setMarksOpen(false);
   editIndex=-1;
   dlgCat='其他';
   pendingT=video.currentTime;
@@ -1761,6 +1843,9 @@ function renderMarks(){
   const vw=video.videoWidth||16,vh=video.videoHeight||9,ar=vw/vh;
   const THUMB=ar>=1?{w:96,h:Math.round(96/ar)}:{w:Math.round(96*ar),h:96};
   $('markCount').textContent=marks.length;
+  const badge=$('markCountBadge');
+  if(badge){badge.style.display=marks.length?'inline-flex':'none';badge.textContent=marks.length;}
+  renderMarkDots();
   const list=$('markList');
   if(!marks.length){list.innerHTML='<div class="empty-hint">'+T('emptyHint')+'</div>';return}
   list.innerHTML='';
@@ -1779,19 +1864,14 @@ function renderMarks(){
         <div class="mark-note">${esc(mk.note)}</div>
         ${mk.note.length>110?`<div class="mark-more">${T('more')}</div>`:''}
         ${refHtml}
-        <div class="sev-custom" data-sev="${mk.sev}">
-          <button type="button" class="sev-btn"><span class="dot-r" style="background:${SEVCOLOR[mk.sev]}"></span><span class="sev-txt">${sevLabel(mk.sev)}</span><svg class="ic sev-caret"><use href="#i-caret"/></svg></button>
-          <div class="sev-pop">
-            ${SEV_VALUES.zh.map(s=>`<div class="sev-opt" data-v="${s}" style="--dc:${SEVCOLOR[s]}"><span class="dot-r" style="background:${SEVCOLOR[s]}"></span>${sevLabel(s)}</div>`).join('')}
-          </div>
-        </div>
+        <div class="sev-badge"><span class="dot-r" style="background:${SEVCOLOR[mk.sev]}"></span>${sevLabel(mk.sev)}</div>
       </div>
       <div style="display:flex;flex-direction:column;gap:3px">
         <button class="mark-goto" title="${T('goto')}"><svg class="ic" style="width:13px;height:13px"><use href="#i-play"/></svg></button>
         <button class="mark-del" title="${T('del')}"><svg class="ic" style="width:13px;height:13px"><use href="#i-trash"/></svg></button>
       </div>`;
     card.onclick=e=>{
-      if(e.target.closest('.mark-del')||e.target.closest('.mark-goto')||e.target.closest('.sev-custom'))return;
+      if(e.target.closest('.mark-del')||e.target.closest('.mark-goto'))return;
       video.currentTime=mk.t;
       editMark(i);                       // 點卡片 → 重新編輯（可重新標註）
     };
@@ -1799,40 +1879,6 @@ function renderMarks(){
     card.querySelector('.mark-del').onclick=()=>{
       appConfirm(T('delConfirm')).then(ok=>{if(ok){marks.splice(i,1);renderMarks();}});
     };
-    // 自定義等級選單（取代原生 select，統一為本風格）
-    const sevBox=card.querySelector('.sev-custom');
-    const sevBtn=sevBox.querySelector('.sev-btn');
-    const sevPop=sevBox.querySelector('.sev-pop');
-    const syncSev=v=>{mk.sev=v;sevBox.dataset.sev=v;sevBox.querySelector('.sev-txt').textContent=sevLabel(v);sevBox.querySelector('.dot-r').style.background=SEVCOLOR[v];sevPop.querySelectorAll('.sev-opt').forEach(o=>o.classList.toggle('sel',o.dataset.v===v));};
-    // 渲染當下就把目前等級打勾，避免開啟選單時既有選項沒有勾記
-    sevPop.querySelectorAll('.sev-opt').forEach(o=>o.classList.toggle('sel',o.dataset.v===mk.sev));
-    sevBtn.onclick=e=>{
-      e.stopPropagation();
-      // 先記住原本狀態，再關閉全部浮層，否則自己的 show 會被清掉導致再點無法收合
-      const willOpen=!sevPop.classList.contains('show');
-      window.closeAllMenus&&window.closeAllMenus();
-      // 先收起其他所有選單，並還原它們卡片的 z-index（避免從下往上點時 z-index 殘留導致壓層錯亂）
-      document.querySelectorAll('.sev-pop.show').forEach(x=>{if(x!==sevPop)x.classList.remove('show');});
-      document.querySelectorAll('.mark-card').forEach(c=>{if(c!==card)c.style.zIndex='';});
-      sevPop.classList.toggle('show',willOpen);
-      const open=willOpen;
-      // 開啟時把所屬卡片提到最上層，避免被下一張卡片壓住
-      card.style.position='relative';
-      card.style.zIndex=open?'50':'';
-      if(open){
-        // 方向判斷：若下方空間不夠，改為顯示在按鈕上方
-        const r=sevBtn.getBoundingClientRect();
-        const ph=sevPop.offsetHeight||120;
-        if(r.bottom+ph>window.innerHeight-6){
-          sevPop.style.top='auto';
-          sevPop.style.bottom='calc(100% + 5px)';
-        }else{
-          sevPop.style.top='calc(100% + 5px)';
-          sevPop.style.bottom='auto';
-        }
-      }
-    };
-    sevPop.querySelectorAll('.sev-opt').forEach(o=>o.onclick=ev=>{ev.stopPropagation();syncSev(o.dataset.v);sevPop.classList.remove('show');card.style.zIndex='';});
     list.appendChild(card);
   });
 }
