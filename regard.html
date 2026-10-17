@@ -439,12 +439,12 @@ em{margin-right:.06em}
 
 <!-- 通用對話框 -->
 <div class="nmodal" id="infoModal" style="display:none"><div class="ncard">
-  <h3>Video <em>info</em></h3><div id="infoBody"></div>
-  <div class="a-actions"><button class="a-btn primary" data-close>Close</button></div>
+  <h3 data-i18n="infoT">Video <em>info</em></h3><div id="infoBody"></div>
+  <div class="a-actions"><button class="a-btn primary" data-close data-i18n="close">Close</button></div>
 </div></div>
 <div class="nmodal" id="keysModal" style="display:none"><div class="ncard">
-  <h3>Short<em>cuts</em></h3><div id="keysBody"></div>
-  <div class="a-actions"><button class="a-btn primary" data-close>Close</button></div>
+  <h3 data-i18n="keysT">Short<em>cuts</em></h3><div id="keysBody"></div>
+  <div class="a-actions"><button class="a-btn primary" data-close data-i18n="close">Close</button></div>
 </div></div>
 <div class="nmodal" id="confirm" style="display:none"><div class="ncard">
   <h3 id="confirmTitle">Please <em>confirm</em></h3>
@@ -489,7 +489,9 @@ infoT:'影片<em>資訊</em>',keysT:'快捷<em>鍵</em>',expT:'匯出<em>報告<
 noVideo:'請先選擇影片檔案',cantGrab:'此處無法截圖',saved:'已儲存',deleted:'已刪除',
 lbNote:'備註',lbPhrases:'常用片語',lbSev:'嚴重度',lbCat:'分類',
 dPen:'✎ 畫筆',dUndo:'復原',dClear:'清除',dDone:'完成',dAnnotate:'✎ 在截圖上標註',
-mInfo:'影片資訊',mKeys:'快捷鍵',mClose:'關閉影片'},
+mInfo:'影片資訊',mKeys:'快捷鍵',mClose:'關閉影片',
+hkPlay:'播放 · 暫停',hkShuttle:'倒退／前進 10 秒',hkSeek:'倒退／前進 5 秒',hkFrame:'逐幀',hkMark:'新增標記',
+inRes:'解析度',inDur:'片長'},
 en:{open:'Open',journal:'Journal',export:'Export',projPh:'Project name',newMark:'New mark',editMark:'Edit mark',
 noteTitle:'Note <em>this</em> moment',editTitle:'Revisit <em>this</em> moment',
 notePh:'What needs attention…',phrases:['Subtitle typo, check','Audio level uneven','Overexposed','Cut too fast','Grade too cold','Music rights check'],
@@ -500,7 +502,9 @@ infoT:'Video <em>info</em>',keysT:'Short<em>cuts</em>',expT:'Export <em>report</
 noVideo:'Please select a video first',cantGrab:'Cannot capture here',saved:'Saved',deleted:'Deleted',
 lbNote:'Note',lbPhrases:'Phrases',lbSev:'Severity',lbCat:'Category',
 dPen:'✎ Pen',dUndo:'Undo',dClear:'Clear',dDone:'Done',dAnnotate:'✎ Annotate screenshot',
-mInfo:'Video info',mKeys:'Shortcuts',mClose:'Close video'}};
+mInfo:'Video info',mKeys:'Shortcuts',mClose:'Close video',
+hkPlay:'Play · Pause',hkShuttle:'Back / Fwd 10s',hkSeek:'Back / Fwd 5s',hkFrame:'Frame step',hkMark:'New mark',
+inRes:'Resolution',inDur:'Duration'}};
 const T=k=>I18N[LANG.cur][k]||k;
 function applyLang(){
   document.querySelectorAll('[data-i18n]').forEach(el=>el.innerHTML=T(el.dataset.i18n));
@@ -1041,14 +1045,14 @@ $('#mInfo').onclick=()=>{
   $('#topMenu').style.display='none';
   if(!video.videoWidth){toast(T('noVideo'));return;}
   $('#infoBody').innerHTML=`
-    <div class="kv"><span>Resolution</span><span>${video.videoWidth} × ${video.videoHeight}</span></div>
-    <div class="kv"><span>Duration</span><span>${fmt(video.duration)}</span></div>
+    <div class="kv"><span>${T('inRes')}</span><span>${video.videoWidth} × ${video.videoHeight}</span></div>
+    <div class="kv"><span>${T('inDur')}</span><span>${fmt(video.duration)}</span></div>
     <div class="kv"><span>FPS</span><span>${detectedFps}</span></div>`;
   showModal('#infoModal');
 };
 $('#mKeys').onclick=()=>{
   $('#topMenu').style.display='none';
-  const rows=[['Space / K','Play · Pause'],['J / L','∓ 10s'],['← / →','∓ 5s'],[', / .','Frame step'],['M','New mark'],['Esc','Close']];
+  const rows=[['Space / K',T('hkPlay')],['J / L',T('hkShuttle')],['← / →',T('hkSeek')],[', / .',T('hkFrame')],['M',T('hkMark')],['Esc',T('close')]];
   $('#keysBody').innerHTML=rows.map(r=>`<div class="hk-row"><span>${r[1]}</span><kbd>${r[0]}</kbd></div>`).join('');
   showModal('#keysModal');
 };
