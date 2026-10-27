@@ -869,6 +869,14 @@ async function loadPdfFonts(){
     s.onload=res;s.onerror=res;document.head.appendChild(s);});
   return !!window.REGARD_FONTS;
 }
+/* 截圖原始尺寸＋等比置入（匯出不拉伸） */
+function shotSize(src){return new Promise(res=>{
+  const im=new Image();
+  im.onload=()=>res({w:im.naturalWidth||16,h:im.naturalHeight||9});
+  im.onerror=()=>res({w:16,h:9});
+  im.src=src;
+});}
+function fitBox(w,h,bw,bh){const s=Math.min(bw/w,bh/h);return{w:w*s,h:h*s};}
 async function exportPdf(){
   if(!marks.length){toast(T('noVideo'));return;}
   toast('Preparing…');
@@ -906,53 +914,82 @@ async function exportPdf(){
   doc.text(`${marks.length} ${LANG.cur==='zh'?'則標記':'marks'} · ${new Date().toLocaleDateString(LANG.cur==='zh'?'zh-TW':'en-US')}`,M,y);
   y+=20;
   doc.setDrawColor(...GOLD);doc.setLineWidth(.6);doc.line(M,y,PW-M,y);
-  /* 內頁 */
-  marks.forEach((m,i)=>{
-    doc.addPage();y=M;
-    /* 頁眉 */
+  /* 內頁：連續排版，一頁多則；圖片依原始比例置入 */
+  const FOOT=PH-15, GAP=10;
+  let pageNo=1, firstOnPage=true;
+  const newMarkPage=()=>{
+    doc.addPage();pageNo++;
     doc.setTextColor(...LIGHT);sSans(8);
     doc.text(`R E G A R D  —  ${proj}`,M,12);
-    doc.text(`N° ${i+1} / ${marks.length}`,PW-M,12,{align:'right'});
-    doc.setDrawColor(...LIGHT);doc.setLineWidth(.3);doc.line(M,16,PW-M,16);
-    y=30;
-    /* 編號＋時間碼 */
-    doc.setTextColor(...GOLD);sSerif(36);
-    doc.text(String(i+1).padStart(2,'0'),M,y+10);
-    doc.setTextColor(...GREY);sSans(10);
-    doc.text(m.tc,M+22,y+10);
-    y+=28;
-    /* 截圖 */
-    if(m.shot){
-      try{
-        const imgW=CW,imgH=imgW*9/16;
-        if(y+imgH>PH-40){doc.addPage();y=M;}
-        doc.addImage(m.shot,'JPEG',M,y,imgW,imgH);
-        y+=imgH+10;
-      }catch(e){}
-    }
-    /* 備註 */
-    if(y>PH-60){doc.addPage();y=M;}
-    doc.setTextColor(...INK);sSerif(13);
-    const noteLines=doc.splitTextToSize(m.note||'—',CW);
-    doc.text(noteLines,M,y);y+=noteLines.length*6.5+8;
-    /* 分類＋嚴重度 */
-    doc.setTextColor(...GREY);sSans(9);
-    doc.text(`${m.cat}   ·   ${T('sev')[m.sev]}`,M,y);y+=12;
-    /* 參考資料 */
-    if(m.refs&&m.refs.length){
-      if(y>PH-50){doc.addPage();y=M;}
-      doc.setTextColor(...GOLD);sSans(8);
-      doc.text('R E F E R E N C E S',M,y);y+=7;
-      doc.setTextColor(...GREY);
-      m.refs.forEach(r=>{doc.text(r.url,M,y);y+=5;});
-      y+=6;
-    }
-    /* 頁腳線 */
     doc.setDrawColor(...LIGHT);doc.setLineWidth(.3);
-    doc.line(M,PH-15,PW-M,PH-15);
-    doc.setTextColor(...LIGHT);sSans(8);
-    doc.text(`${i+1}`,PW/2,PH-10,{align:'center'});
-  });
+    doc.line(M,16,PW-M,16);
+    doc.line(M,FOOT,PW-M,FOOT);
+    doc.text(`${pageNo}`,PW/2,PH-10,{align:'center'});
+    firstOnPage=true;
+    return 24;
+  };
+  y=newMarkPage();
+  for(let i=0;i<marks.length;i++){
+    const m=marks[i], num=String(i+1).padStart(2,'0');
+    let sz={w:16,h:9};
+    if(m.shot){try{sz=await shotSize(m.shot);}catch(e){}}
+    const portrait=!!m.shot&&sz.h>=sz.w;
+    const TW=portrait?CW-70:CW;
+    const nl=doc.splitTextToSize(m.note||'—',TW);
+    const th=nl.length*6.5+6+10+((m.refs&&m.refs.length)?6+m.refs.length*5:0);
+    let disp={w:0,h:0}, blockH;
+    if(portrait){
+      disp=fitBox(sz.w,sz.h,62,110);
+      blockH=Math.max(disp.h,14+th);
+    }else{
+      if(m.shot)disp=fitBox(sz.w,sz.h,CW,80);
+      blockH=14+(disp.h?disp.h+8:0)+th;
+    }
+    if(y+blockH>FOOT-4)y=newMarkPage();
+    const by=y;
+    if(!firstOnPage){
+      doc.setDrawColor(...LIGHT);doc.setLineWidth(.3);
+      doc.line(M,by-GAP/2,PW-M,by-GAP/2);
+    }
+    if(portrait){
+      /* 左圖右文 */
+      try{if(m.shot)doc.addImage(m.shot,'JPEG',M,by,disp.w,disp.h);}catch(e){}
+      const tx=M+70;
+      let ty=by;
+      doc.setTextColor(...GOLD);sSerif(16);doc.text(num,tx,ty+6);
+      doc.setTextColor(...GREY);sSans(10);doc.text(m.tc,tx+14,ty+6);
+      ty+=14;
+      doc.setTextColor(...INK);sSerif(13);
+      doc.text(nl,tx,ty);ty+=nl.length*6.5+6;
+      doc.setTextColor(...GREY);sSans(9);
+      doc.text(`${m.cat}   ·   ${T('sev')[m.sev]}`,tx,ty);ty+=10;
+      if(m.refs&&m.refs.length){
+        doc.setTextColor(...GOLD);sSans(8);doc.text('R E F E R E N C E S',tx,ty);ty+=6;
+        doc.setTextColor(...GREY);
+        m.refs.forEach(r=>{doc.text(r.url,tx,ty);ty+=5;});
+      }
+    }else{
+      /* 上圖下文 */
+      doc.setTextColor(...GOLD);sSerif(20);doc.text(num,M,by+8);
+      doc.setTextColor(...GREY);sSans(10);doc.text(m.tc,M+16,by+8);
+      let ty=by+14;
+      if(m.shot){
+        try{doc.addImage(m.shot,'JPEG',M+(CW-disp.w)/2,ty,disp.w,disp.h);}catch(e){}
+        ty+=disp.h+8;
+      }
+      doc.setTextColor(...INK);sSerif(13);
+      doc.text(nl,M,ty);ty+=nl.length*6.5+6;
+      doc.setTextColor(...GREY);sSans(9);
+      doc.text(`${m.cat}   ·   ${T('sev')[m.sev]}`,M,ty);ty+=10;
+      if(m.refs&&m.refs.length){
+        doc.setTextColor(...GOLD);sSans(8);doc.text('R E F E R E N C E S',M,ty);ty+=6;
+        doc.setTextColor(...GREY);
+        m.refs.forEach(r=>{doc.text(r.url,M,ty);ty+=5;});
+      }
+    }
+    y=by+blockH+GAP;
+    firstOnPage=false;
+  }
   doc.save(`${proj}_${Date.now()}.pdf`);
   toast(T('saved'));
 }
@@ -976,7 +1013,7 @@ async function exportXlsx(){
   /* Logo */
   try{
     const lid=xlsAddImg(wb,window.REGARD_LOGO_B64,'png');
-    if(lid)ws.addImage(lid,{tl:{col:0,row:0},ext:{width:52,height:48}});
+    if(lid!==null)ws.addImage(lid,{tl:{col:0,row:0},ext:{width:52,height:48}});
   }catch(e){}
   /* 標題 */
   ws.getCell('B1').value=proj;
@@ -1022,7 +1059,11 @@ async function exportXlsx(){
     if(m.shot){
       try{
         const sid=xlsAddImg(wb,m.shot,'jpeg');
-        if(sid)ws.addImage(sid,{tl:{col:1,row:rn-1,colOff:4*9525,rowOff:4*9525},ext:{width:180,height:101}});
+        if(sid!==null){
+          const sz=await shotSize(m.shot);
+          const disp=fitBox(sz.w,sz.h,180,88);
+          ws.addImage(sid,{tl:{col:1,row:rn-1,colOff:Math.round(4+(180-disp.w)/2)*9525,rowOff:Math.round(4+(88-disp.h)/2)*9525},ext:{width:Math.round(disp.w),height:Math.round(disp.h)}});
+        }
       }catch(e){}
     }
   }
