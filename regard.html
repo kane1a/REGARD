@@ -1153,6 +1153,20 @@ async function exportPdf(){
     return 24;
   };
   let refBlocks=[];
+  /* 嚴重度徽章：框線＋淺底＋粗體彩字（沿用舊版配色） */
+  const SEVBOX=[{fg:[192,57,43],bg:[253,236,234]},{fg:[163,95,0],bg:[255,246,229]},{fg:[0,88,176],bg:[234,242,253]}];
+  const sevBadge=(tx,ty,sev)=>{
+    const s=SEVBOX[sev]||SEVBOX[2];
+    const label=T('sev')[sev];
+    sSerif(9);
+    const tw=doc.getTextWidth(label);
+    const bw=tw+10, bh=7.5;
+    doc.setFillColor(...s.bg);doc.setDrawColor(...s.fg);doc.setLineWidth(.4);
+    doc.roundedRect(tx,ty-4.5,bw,bh,2,2,'FD');
+    doc.setTextColor(...s.fg);
+    doc.text(label,tx+5,ty);
+    return ty+10;
+  };
   const drawRefs=(tx,ty)=>{
     if(!refBlocks.length)return ty;
     doc.setTextColor(...GOLD);sSans(8);doc.text('R E F E R E N C E S',tx,ty);ty+=6;
@@ -1221,8 +1235,7 @@ async function exportPdf(){
       ty+=14;
       doc.setTextColor(...INK);sSerif(13);
       doc.text(nl,tx,ty);ty+=nl.length*6.5+6;
-      doc.setTextColor(...GREY);sSans(9);
-      doc.text(T('sev')[m.sev],tx,ty);ty+=10;
+      ty=sevBadge(tx,ty,m.sev);
       ty=drawRefs(tx,ty);
     }else{
       /* 上圖下文 */
@@ -1235,8 +1248,7 @@ async function exportPdf(){
       }
       doc.setTextColor(...INK);sSerif(13);
       doc.text(nl,M,ty);ty+=nl.length*6.5+6;
-      doc.setTextColor(...GREY);sSans(9);
-      doc.text(T('sev')[m.sev],M,ty);ty+=10;
+      ty=sevBadge(M,ty,m.sev);
       ty=drawRefs(M,ty);
     }
     y=by+blockH+GAP;
@@ -1288,6 +1300,9 @@ async function exportXlsx(){
     c.alignment={vertical:'middle',horizontal:'center'};
   });
   hr.height=26;
+  /* 嚴重度儲存格：沿用舊版配色（彩字＋淺底），再加一圈同色細框 */
+  const SEVFILL=['FFFDECEA','FFFFF6E5','FFEAF2FD'];
+  const SEVFONT=['FFC0392B','FFA35F00','FF0058B0'];
   /* 資料＋截圖 */
   for(let i=0;i<marks.length;i++){
     const m=marks[i],rn=5+i;
@@ -1305,6 +1320,12 @@ async function exportXlsx(){
     });
     r.getCell(1).font={color:{argb:'FFAC8A52'},bold:true,size:13};
     r.getCell(1).alignment={horizontal:'center'};
+    const sevCell=r.getCell(5);
+    const sevHex=SEVFONT[m.sev]||'FF333333';
+    sevCell.font={bold:true,color:{argb:sevHex},size:11,name:'Calibri'};
+    sevCell.fill={type:'pattern',pattern:'solid',fgColor:{argb:SEVFILL[m.sev]||'FFF5F5F5'}};
+    sevCell.border={top:{style:'thin',color:{argb:sevHex}},bottom:{style:'thin',color:{argb:sevHex}},left:{style:'thin',color:{argb:sevHex}},right:{style:'thin',color:{argb:sevHex}}};
+    sevCell.alignment={vertical:'middle',horizontal:'center',wrapText:true};
     r.getCell(3).font={name:'Consolas',size:10};
     if(m.shot){
       try{
