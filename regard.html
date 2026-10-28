@@ -189,7 +189,7 @@ em{margin-right:.06em}
 .j-tc{font-family:var(--mono);font-size:11px;color:var(--stone);letter-spacing:.14em;margin:6px 0 8px}
 .j-note{font-size:14px;line-height:1.75;color:var(--bone);font-weight:300}
 .j-meta{display:flex;align-items:center;gap:12px;margin-top:10px}
-.j-cat{font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:var(--stone)}
+
 .j-sev{display:flex;align-items:center;gap:6px;font-size:10px;letter-spacing:.2em;color:var(--stone)}
 .j-sev i{width:6px;height:6px;border-radius:50%;display:block}
 .j-thumb{width:100%;aspect-ratio:16/9;object-fit:cover;margin-top:14px;opacity:.92}
@@ -274,14 +274,6 @@ em{margin-right:.06em}
 .a-seg input{position:absolute;opacity:0;pointer-events:none}
 .a-seg label:has(input:checked){background:rgba(201,168,111,.1);color:var(--champagne)}
 .a-seg .dot{width:6px;height:6px;border-radius:50%}
-.a-cats{display:flex;flex-wrap:wrap;gap:8px}
-.a-cat input{position:absolute;opacity:0;pointer-events:none}
-.a-cat span{
-  display:inline-block;border:1px solid var(--hairline);border-radius:20px;padding:8px 18px;
-  font-size:12px;letter-spacing:.14em;color:var(--stone);cursor:pointer;transition:all .35s var(--ease);
-}
-.a-cat input:checked+span{border-color:var(--champagne);color:var(--champagne)}
-.a-cat span:hover{color:var(--bone);border-color:var(--bone-dim)}
 .a-ref-toggle{background:none;border:none;color:var(--stone);font-size:11px;letter-spacing:.26em;
   padding:0;display:flex;align-items:center;gap:10px;transition:color .3s}
 .a-ref-toggle:hover{color:var(--bone)}
@@ -451,8 +443,6 @@ em{margin-right:.06em}
     <div class="a-phrases" id="aPhrases"></div>
     <div class="a-label" data-i18n="lbSev">Severity</div>
     <div class="a-seg" id="aSev"></div>
-    <div class="a-label" data-i18n="lbCat">Category</div>
-    <div class="a-cats" id="aCats"></div>
     <div style="margin-top:16px">
       <button class="a-ref-toggle" id="aRefToggle"><svg viewBox="0 0 24 24"><path d="M7 10l5 5 5-5"/></svg><span>References</span></button>
       <div id="aRefBody">
@@ -561,12 +551,12 @@ const I18N={
 zh:{open:'開啟影片',journal:'手札',export:'匯出',projPh:'專案名稱',newMark:'新增標記',editMark:'編輯標記',
 noteTitle:'記下<em>這個</em>瞬間',editTitle:'重新審視<em>這個</em>瞬間',
 notePh:'需要留意的地方…',phrases:['字幕錯字，請確認','聲音忽大忽小','畫面過曝','剪接節奏太快','色調偏冷','音樂版權確認'],
-sev:['必須修改','建議修改','僅提醒'],cats:['字幕','聲音','畫面','剪輯','調色','其他'],
+sev:['必須修改','建議修改','僅提醒'],
 markBtn:'標記此刻',save:'儲存標記',cancel:'取消',close:'關閉',ref:'參考資料',refPh:'https://…（Enter 加入）',
 empty:'尚無標記。<br>靜靜觀看，按下 M 留下第一筆。',confirmT:'請<em>確認</em>',delMsg:'確定刪除這筆標記？',changeMsg:'更換影片將清空目前標記，繼續？',discardMsg:'放棄這筆標記？',
 infoT:'影片<em>資訊</em>',keysT:'快捷<em>鍵</em>',expT:'匯出<em>報告</em>',pdf:'PDF 報告',xls:'Excel 報告',
 noVideo:'請先選擇影片檔案',cantGrab:'此處無法截圖',saved:'已儲存',deleted:'已刪除',
-lbNote:'備註',lbPhrases:'常用片語',lbSev:'嚴重度',lbCat:'分類',
+lbNote:'備註',lbPhrases:'常用片語',lbSev:'嚴重度',
 dPen:'✎ 畫筆',dUndo:'復原',dClear:'清除',dDone:'完成',dAnnotate:'✎ 在截圖上標註',anTitle:'標註<em>截圖</em>',anPen:'畫筆',anEraser:'橡皮擦',anS:'細',anM:'中',anL:'粗',refAddImg:'＋ 加入圖片',refImg:'參考圖片',toolPen:'畫筆',toolLine:'直線',toolRect:'矩形',toolEllipse:'圓形',toolArrow:'箭頭',toolEraser:'橡皮擦',toolUndo:'復原',toolClear:'清除',toolCancel:'取消',toolDone:'完成',
 mInfo:'影片資訊',mKeys:'快捷鍵',mClose:'關閉影片',
 hkPlay:'播放 · 暫停',hkShuttle:'倒退／前進 10 秒',hkSeek:'倒退／前進 5 秒',hkFrame:'逐幀',hkMark:'新增標記',
@@ -575,12 +565,12 @@ dzTitle:'看見的<em>藝術</em>。',dzSub:'安靜的影片審片工坊。<br>�
 en:{open:'Open',journal:'Journal',export:'Export',projPh:'Project name',newMark:'New mark',editMark:'Edit mark',
 noteTitle:'Note <em>this</em> moment',editTitle:'Revisit <em>this</em> moment',
 notePh:'What needs attention…',phrases:['Subtitle typo, check','Audio level uneven','Overexposed','Cut too fast','Grade too cold','Music rights check'],
-sev:['Must fix','Suggest','Note'],cats:['Subtitles','Audio','Visual','Edit','Grade','Other'],
+sev:['Must fix','Suggest','Note'],
 markBtn:'Mark moment',save:'Save mark',cancel:'Cancel',close:'Close',ref:'References',refPh:'https://… (Enter to add)',
 empty:'No marks yet.<br>Watch quietly, press M to leave the first.',confirmT:'Please <em>confirm</em>',delMsg:'Delete this mark?',changeMsg:'Changing video clears marks. Continue?',discardMsg:'Discard this mark?',
 infoT:'Video <em>info</em>',keysT:'Short<em>cuts</em>',expT:'Export <em>report</em>',pdf:'PDF report',xls:'Excel report',
 noVideo:'Please select a video first',cantGrab:'Cannot capture here',saved:'Saved',deleted:'Deleted',
-lbNote:'Note',lbPhrases:'Phrases',lbSev:'Severity',lbCat:'Category',
+lbNote:'Note',lbPhrases:'Phrases',lbSev:'Severity',
 dPen:'✎ Pen',dUndo:'Undo',dClear:'Clear',dDone:'Done',dAnnotate:'✎ Annotate screenshot',anTitle:'Annotate <em>screenshot</em>',anPen:'Pen',anEraser:'Eraser',anS:'Fine',anM:'Medium',anL:'Bold',refAddImg:'+ Add image',refImg:'Reference image',toolPen:'Pen',toolLine:'Line',toolRect:'Rectangle',toolEllipse:'Ellipse',toolArrow:'Arrow',toolEraser:'Eraser',toolUndo:'Undo',toolClear:'Clear',toolCancel:'Cancel',toolDone:'Done',
 mInfo:'Video info',mKeys:'Shortcuts',mClose:'Close video',
 hkPlay:'Play · Pause',hkShuttle:'Back / Fwd 10s',hkSeek:'Back / Fwd 5s',hkFrame:'Frame step',hkMark:'New mark',
@@ -593,7 +583,7 @@ function applyLang(){
   $('#tExport').textContent=T('export');$('#projName').placeholder=T('projPh');
   $('#btnMark').textContent=T('markBtn');$('#aCancel').textContent=T('cancel');$('#aSave').textContent=T('save');
   $('#aRefToggle span').textContent=T('ref');$('#aNote').placeholder=T('notePh');$('#aRefUrl').placeholder=T('refPh');
-  renderPhrases();renderSev();renderCats();renderJournal();renderAnTools();
+  renderPhrases();renderSev();renderJournal();renderAnTools();
   document.documentElement.lang=LANG.cur==='zh'?'zh-Hant':'en';
 }
 
@@ -777,10 +767,8 @@ function openAtelier(idx=-1){
   $('#aRefToggle').classList.remove('open');
   if(m){
     document.querySelector(`#aSev input[value="${m.sev}"]`).checked=true;
-    document.querySelectorAll('#aCats input').forEach(i=>i.checked=(i.value===m.cat));
   }else{
     document.querySelector('#aSev input[value="0"]').checked=true;
-    document.querySelectorAll('#aCats input').forEach(i=>i.checked=(i.value===I18N[LANG.cur].cats[5]));
   }
   closeJournal();
   $('#atelier').style.display='flex';
@@ -801,11 +789,10 @@ $('#aCancel').onclick=()=>{confirmDlg(T('discardMsg'),closeAtelier);};
 $('#btnMark').onclick=()=>openAtelier();
 
 function currentSev(){return +document.querySelector('#aSev input:checked').value;}
-function currentCat(){const c=document.querySelector('#aCats input:checked');return c?c.value:'';}
 $('#aSave').onclick=()=>{
   const note=$('#aNote').value.trim();
   const refs=[...document.querySelectorAll('#aRefList .a-ref-item')].map(el=>({url:el.dataset.url,img:el.dataset.img||'',name:el.dataset.name||''}));
-  const entry={t:pendingT,tc:fmt(pendingT),note,sev:currentSev(),cat:currentCat(),refs,shot:pendingShot,created:Date.now()};
+  const entry={t:pendingT,tc:fmt(pendingT),note,sev:currentSev(),refs,shot:pendingShot,created:Date.now()};
   if(editIndex>=0)marks[editIndex]=entry;else marks.push(entry);
   marks.sort((a,b)=>a.t-b.t);
   closeAtelier();renderJournal();renderDiamonds();toast(T('saved'));
@@ -829,16 +816,6 @@ function renderSev(){
     l.innerHTML=`<input type="radio" name="sev" value="${i}"${i===0?' checked':''}><span class="dot" style="background:${SEVC[i]}"></span>${s}`;
     $('#aSev').appendChild(l);
   });
-}
-/* 分類 */
-function renderCats(){
-  $('#aCats').innerHTML='';
-  T('cats').forEach(c=>{
-    const l=document.createElement('label');l.className='a-cat';
-    l.innerHTML=`<input type="radio" name="cat" value="${c}"><span>${c}</span>`;
-    $('#aCats').appendChild(l);
-  });
-  document.querySelectorAll('#aCats input')[5].checked=true;
 }
 /* 參考資料 */
 function addRefRow(r){
@@ -1039,8 +1016,7 @@ function renderJournal(){
       <div class="j-num">N° ${String(i+1).padStart(2,'0')}</div>
       <div class="j-tc">${m.tc}</div>
       <div class="j-note">${escapeHtml(m.note)||'—'}</div>
-      <div class="j-meta"><span class="j-cat">${escapeHtml(m.cat)}</span>
-        <span class="j-sev"><i style="background:${SEVC[m.sev]}"></i>${T('sev')[m.sev]}</span></div>
+      <div class="j-meta"><span class="j-sev"><i style="background:${SEVC[m.sev]}"></i>${T('sev')[m.sev]}</span></div>
       ${m.shot?`<img class="j-thumb" src="${m.shot}">`:''}
       <div class="j-actions">
         <button class="ed" title="edit"><svg viewBox="0 0 24 24"><path d="M4 20l4.5-1L20 7.5a2.1 2.1 0 00-3-3L5.5 16 4 20z"/></svg></button>
@@ -1111,6 +1087,20 @@ function shotSize(src){return new Promise(res=>{
   im.src=src;
 });}
 function fitBox(w,h,bw,bh){const s=Math.min(bw/w,bh/h);return{w:w*s,h:h*s};}
+function toJpeg(src,maxSide=800){return new Promise((res,rej)=>{
+  const im=new Image();
+  im.onload=()=>{
+    try{
+      const sc=Math.min(1,maxSide/Math.max(im.naturalWidth,im.naturalHeight));
+      const c=document.createElement('canvas');
+      c.width=Math.max(1,Math.round(im.naturalWidth*sc));c.height=Math.max(1,Math.round(im.naturalHeight*sc));
+      const g=c.getContext('2d');g.fillStyle='#fff';g.fillRect(0,0,c.width,c.height);
+      g.drawImage(im,0,0,c.width,c.height);
+      res(c.toDataURL('image/jpeg',.85));
+    }catch(e){rej(e);}
+  };
+  im.onerror=rej;im.src=src;
+});}
 async function exportPdf(){
   if(!marks.length){toast(T('noVideo'));return;}
   toast('Preparing…');
@@ -1162,6 +1152,23 @@ async function exportPdf(){
     firstOnPage=true;
     return 24;
   };
+  let refBlocks=[];
+  const drawRefs=(tx,ty)=>{
+    if(!refBlocks.length)return ty;
+    doc.setTextColor(...GOLD);sSans(8);doc.text('R E F E R E N C E S',tx,ty);ty+=6;
+    for(const b of refBlocks){
+      if(b.kind==='url'){
+        doc.setTextColor(...GREY);
+        b.lines.forEach(l=>{doc.text(l,tx,ty);ty+=5;});
+      }else{
+        try{doc.addImage(b.jpg,'JPEG',tx,ty,b.w,b.h);}catch(e){}
+        ty+=b.h;
+        doc.setTextColor(...GREY);sSans(8);
+        doc.text(b.capLines,tx,ty);ty+=b.capLines.length*5+3;
+      }
+    }
+    return ty;
+  };
   y=newMarkPage();
   for(let i=0;i<marks.length;i++){
     const m=marks[i], num=String(i+1).padStart(2,'0');
@@ -1173,12 +1180,23 @@ async function exportPdf(){
     sSerif(13);
     const nl=doc.splitTextToSize(m.note||'—',TW);
     sSans(8);
-    const refLines=[];
-    (m.refs||[]).forEach(r=>{
-      if(r.url)refLines.push(...doc.splitTextToSize(r.url,TW));
-      else if(r.img)refLines.push(...doc.splitTextToSize(`${T('refImg')}${r.name?' '+r.name:''}`,TW));
-    });
-    const th=nl.length*6.5+6+10+(refLines.length?6+refLines.length*5:0);
+    refBlocks=[];
+    for(const r of (m.refs||[])){
+      if(r.url)refBlocks.push({kind:'url',lines:doc.splitTextToSize(r.url,TW)});
+      if(r.img){
+        try{
+          const isz=await shotSize(r.img);
+          const fit=fitBox(isz.w,isz.h,50,35);
+          const jpg=await toJpeg(r.img);
+          const capLines=doc.splitTextToSize(r.name||T('refImg'),TW);
+          refBlocks.push({kind:'img',jpg,w:fit.w,h:fit.h,capLines});
+        }catch(e){
+          refBlocks.push({kind:'url',lines:doc.splitTextToSize(`${T('refImg')}${r.name?' '+r.name:''}`,TW)});
+        }
+      }
+    }
+    const refH=refBlocks.length?6+refBlocks.reduce((a,b)=>a+(b.kind==='url'?b.lines.length*5:b.h+b.capLines.length*5+3),0):0;
+    const th=nl.length*6.5+6+10+refH;
     let disp={w:0,h:0}, blockH;
     if(portrait){
       disp=fitBox(sz.w,sz.h,62,110);
@@ -1204,12 +1222,8 @@ async function exportPdf(){
       doc.setTextColor(...INK);sSerif(13);
       doc.text(nl,tx,ty);ty+=nl.length*6.5+6;
       doc.setTextColor(...GREY);sSans(9);
-      doc.text(`${m.cat}   ·   ${T('sev')[m.sev]}`,tx,ty);ty+=10;
-      if(refLines.length){
-        doc.setTextColor(...GOLD);sSans(8);doc.text('R E F E R E N C E S',tx,ty);ty+=6;
-        doc.setTextColor(...GREY);
-        refLines.forEach(l=>{doc.text(l,tx,ty);ty+=5;});
-      }
+      doc.text(T('sev')[m.sev],tx,ty);ty+=10;
+      ty=drawRefs(tx,ty);
     }else{
       /* 上圖下文 */
       doc.setTextColor(...GOLD);sSerif(20);doc.text(num,M,by+8);
@@ -1222,12 +1236,8 @@ async function exportPdf(){
       doc.setTextColor(...INK);sSerif(13);
       doc.text(nl,M,ty);ty+=nl.length*6.5+6;
       doc.setTextColor(...GREY);sSans(9);
-      doc.text(`${m.cat}   ·   ${T('sev')[m.sev]}`,M,ty);ty+=10;
-      if(refLines.length){
-        doc.setTextColor(...GOLD);sSans(8);doc.text('R E F E R E N C E S',M,ty);ty+=6;
-        doc.setTextColor(...GREY);
-        refLines.forEach(l=>{doc.text(l,M,ty);ty+=5;});
-      }
+      doc.text(T('sev')[m.sev],M,ty);ty+=10;
+      ty=drawRefs(M,ty);
     }
     y=by+blockH+GAP;
     firstOnPage=false;
@@ -1268,11 +1278,10 @@ async function exportXlsx(){
     {header:'Screenshot',key:'img',width:32},
     {header:'Timecode',key:'tc',width:16},
     {header:'Note',key:'note',width:48},
-    {header:'Category',key:'cat',width:14},
     {header:'Severity',key:'sev',width:14},
   ];
   const hr=ws.getRow(4);
-  ['N°','Screenshot','Timecode','Note','Category','Severity'].forEach((h,i)=>hr.getCell(i+1).value=h);
+  ['N°','Screenshot','Timecode','Note','Severity'].forEach((h,i)=>hr.getCell(i+1).value=h);
   hr.eachCell(c=>{
     c.fill={type:'pattern',pattern:'solid',fgColor:{argb:'FF171208'}};
     c.font={color:{argb:'FFE3B866'},bold:true,size:11,name:'Calibri'};
@@ -1286,8 +1295,7 @@ async function exportXlsx(){
     r.getCell(1).value=i+1;
     r.getCell(3).value=m.tc;
     r.getCell(4).value=m.note;
-    r.getCell(5).value=m.cat;
-    r.getCell(6).value=T('sev')[m.sev];
+    r.getCell(5).value=T('sev')[m.sev];
     r.height=72;
     r.eachCell((c,ci)=>{
       c.font={size:11,name:'Calibri',color:{argb:'FF2A251F'}};
