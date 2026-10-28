@@ -208,24 +208,37 @@ em{margin-right:.06em}
 #atelierCard{
   width:min(680px,94vw);max-height:92vh;overflow-y:auto;pointer-events:auto;
   background:var(--coal);border:1px solid var(--hairline-soft);
-  padding:44px 48px 40px;position:relative;
+  padding:20px 32px 16px;position:relative;
   box-shadow:0 40px 120px rgba(0,0,0,.55);
   scrollbar-width:thin;
 }
-.a-eyebrow{font-size:10px;letter-spacing:.34em;text-transform:uppercase;color:var(--champagne);margin-bottom:14px}
-.a-title{font-family:var(--serif);font-size:34px;font-weight:400;letter-spacing:.02em;margin-bottom:6px}
+.a-eyebrow{font-size:10px;letter-spacing:.34em;text-transform:uppercase;color:var(--champagne);margin-bottom:8px}
+.a-title{font-family:var(--serif);font-size:24px;font-weight:400;letter-spacing:.02em;margin-bottom:4px}
 .a-title em{color:var(--champagne)}
-.a-tc{font-family:var(--mono);font-size:12px;letter-spacing:.18em;color:var(--stone);margin-bottom:26px}
-.a-shot{width:100%;height:auto;display:block;margin-bottom:28px;background:#000}
-.a-shot-wrap{position:relative;margin-bottom:28px}
+.a-tc{font-family:var(--mono);font-size:12px;letter-spacing:.18em;color:var(--stone);margin-bottom:14px}
+.a-shot{width:auto;max-width:100%;height:auto;max-height:160px;display:block;background:#000}
+.a-shot-wrap{position:relative;width:fit-content;max-width:100%;margin:0 auto 10px}
 .a-shot-wrap .a-shot{margin-bottom:0}
-#drawCanvas{position:absolute;inset:0;width:100%;height:100%;cursor:crosshair;display:none}
-#drawBar{display:none;gap:6px;margin-top:12px;align-items:center}
-#drawBar.on{display:flex}
+/* ---------- 標註：獨立畫面 ---------- */
+#anModal{position:fixed;inset:0;z-index:95;background:rgba(12,9,5,.94);display:flex;flex-direction:column;padding:26px 32px 22px;box-sizing:border-box}
+.an-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.an-top .a-x{position:static}
+.an-title{font-family:var(--serif);font-size:26px;letter-spacing:.02em}
+.an-title em{color:var(--champagne)}
+.an-stage{flex:1;min-height:0;display:flex;align-items:center;justify-content:center}
+.an-wrap{position:relative;width:fit-content;max-width:100%;max-height:100%}
+.an-wrap img{display:block;width:auto;height:auto;max-width:100%;max-height:100%;background:#000}
+#anCanvas{position:absolute;inset:0;width:100%;height:100%;cursor:crosshair;touch-action:none}
+.an-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:18px}
+.an-group{display:flex;gap:8px;align-items:center}
+.an-group+.an-group{border-left:1px solid var(--hairline);padding-left:14px;margin-left:4px}
+.an-sw{width:26px;height:26px;border-radius:50%;border:2px solid rgba(245,238,221,.25);cursor:pointer;padding:0;transition:transform .25s}
+.an-sw.on{border-color:var(--bone);transform:scale(1.15)}
+.an-actions{margin-left:auto;display:flex;gap:8px}
 .draw-tool{background:none;border:1px solid var(--hairline);border-radius:20px;color:var(--bone-dim);
   font-size:11px;padding:8px 18px;letter-spacing:.1em;transition:all .3s}
 .draw-tool:hover,.draw-tool.on{border-color:var(--champagne);color:var(--champagne)}
-.a-label{font-size:10px;letter-spacing:.3em;text-transform:uppercase;color:var(--stone);margin:26px 0 12px}
+.a-label{font-size:10px;letter-spacing:.3em;text-transform:uppercase;color:var(--stone);margin:14px 0 8px}
 .a-phrases{display:flex;flex-wrap:wrap;gap:8px}
 .a-phrase{
   background:none;border:1px solid var(--hairline);border-radius:20px;color:var(--bone-dim);
@@ -233,7 +246,7 @@ em{margin-right:.06em}
 }
 .a-phrase:hover{border-color:var(--champagne);color:var(--champagne);transform:translateY(-1px)}
 .a-seg{display:flex;border:1px solid var(--hairline);border-radius:2px;overflow:hidden}
-.a-seg label{flex:1;text-align:center;padding:13px 8px;font-size:11px;letter-spacing:.22em;cursor:pointer;
+.a-seg label{flex:1;text-align:center;padding:11px 8px;font-size:11px;letter-spacing:.22em;cursor:pointer;
   color:var(--stone);transition:all .35s;display:flex;align-items:center;justify-content:center;gap:8px;position:relative}
 .a-seg label:not(:last-child){border-right:1px solid var(--hairline)}
 .a-seg input{position:absolute;opacity:0;pointer-events:none}
@@ -262,8 +275,9 @@ em{margin-right:.06em}
 .a-ref-item a{color:var(--champagne);text-decoration:none;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .a-ref-item img{width:52px;height:32px;object-fit:cover}
 .a-ref-item button{background:none;border:none;color:var(--faint);padding:6px}
+.a-ref-item .a-ref-name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--bone-dim)}
 .a-ref-item button:hover{color:#d4695e}
-.a-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:38px}
+.a-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:14px}
 .a-btn{
   background:none;border:none;font-size:11px;letter-spacing:.3em;text-transform:uppercase;
   padding:15px 30px;color:var(--stone);transition:all .4s var(--ease);
@@ -276,8 +290,8 @@ em{margin-right:.06em}
 .a-x svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:1.3;stroke-linecap:round}
 #aNote{
   width:100%;background:none;border:none;border-bottom:1px solid var(--hairline);
-  color:var(--bone);font-family:var(--serif);font-size:20px;font-weight:300;
-  padding:10px 2px 14px;outline:none;resize:none;min-height:56px;line-height:1.6;
+  color:var(--bone);font-family:var(--serif);font-size:18px;font-weight:300;
+  padding:8px 2px 10px;outline:none;resize:none;min-height:48px;line-height:1.6;
   transition:border-color .4s;
 }
 #aNote::placeholder{color:var(--faint)}
@@ -403,15 +417,8 @@ em{margin-right:.06em}
     <div class="a-tc" id="aTc">00:00:00:00</div>
     <div class="a-shot-wrap">
       <img class="a-shot" id="aShot" alt="">
-      <canvas id="drawCanvas"></canvas>
     </div>
-    <div id="drawBar">
-      <button class="draw-tool on" id="drawPen" data-i18n="dPen">✎ 畫筆</button>
-      <button class="draw-tool" id="drawUndo" data-i18n="dUndo">復原</button>
-      <button class="draw-tool" id="drawClear" data-i18n="dClear">清除</button>
-      <button class="draw-tool" id="drawDone" style="margin-left:auto" data-i18n="dDone">完成</button>
-    </div>
-    <div style="margin-bottom:28px"><button class="a-phrase" id="aDrawBtn" data-i18n="dAnnotate">✎ 在截圖上標註</button></div>
+    <div id="aDrawRow" style="margin-bottom:10px"><button class="a-phrase" id="aDrawBtn" data-i18n="dAnnotate">✎ 在截圖上標註</button></div>
     <div class="a-label" data-i18n="lbNote">Note</div>
     <textarea id="aNote" rows="2" placeholder="What needs attention…"></textarea>
     <div class="a-label" data-i18n="lbPhrases">Phrases</div>
@@ -420,12 +427,16 @@ em{margin-right:.06em}
     <div class="a-seg" id="aSev"></div>
     <div class="a-label" data-i18n="lbCat">Category</div>
     <div class="a-cats" id="aCats"></div>
-    <div style="margin-top:26px">
+    <div style="margin-top:16px">
       <button class="a-ref-toggle" id="aRefToggle"><svg viewBox="0 0 24 24"><path d="M7 10l5 5 5-5"/></svg><span>References</span></button>
       <div id="aRefBody">
         <div style="height:14px"></div>
         <div class="a-ref-row">
           <input id="aRefUrl" placeholder="https://…  (Enter to add)" spellcheck="false">
+        </div>
+        <div class="a-ref-row">
+          <button class="a-phrase" id="aRefImgBtn" data-i18n="refAddImg">＋ 加入圖片</button>
+          <input type="file" id="aRefFile" accept="image/*" multiple hidden>
         </div>
         <div id="aRefList"></div>
       </div>
@@ -433,6 +444,32 @@ em{margin-right:.06em}
     <div class="a-actions">
       <button class="a-btn" id="aCancel">Cancel</button>
       <button class="a-btn primary" id="aSave">Save mark</button>
+    </div>
+  </div>
+</div>
+
+<!-- 標註：獨立畫面 -->
+<div id="anModal" style="display:none">
+  <div class="an-top">
+    <div class="an-title" data-i18n="anTitle">標註<em>截圖</em></div>
+    <button class="a-x" id="anClose"><svg viewBox="0 0 24 24"><path d="M6.6 6.6l10.8 10.8M17.4 6.6L6.6 17.4"/></svg></button>
+  </div>
+  <div class="an-stage" id="anStage">
+    <div class="an-wrap" id="anWrap">
+      <img id="anShot" alt="">
+      <canvas id="anCanvas"></canvas>
+    </div>
+  </div>
+  <div class="an-bar">
+    <div class="an-group" id="anColors"></div>
+    <div class="an-group" id="anSizes"></div>
+    <button class="draw-tool" id="anPen" data-i18n="anPen">畫筆</button>
+    <button class="draw-tool" id="anEraser" data-i18n="anEraser">橡皮擦</button>
+    <button class="draw-tool" id="anUndo" data-i18n="dUndo">復原</button>
+    <button class="draw-tool" id="anClear" data-i18n="dClear">清除</button>
+    <div class="an-actions">
+      <button class="a-btn" id="anCancel" data-i18n="cancel">取消</button>
+      <button class="a-btn primary" id="anDone" data-i18n="dDone">完成</button>
     </div>
   </div>
 </div>
@@ -488,7 +525,7 @@ empty:'尚無標記。<br>靜靜觀看，按下 M 留下第一筆。',confirmT:'
 infoT:'影片<em>資訊</em>',keysT:'快捷<em>鍵</em>',expT:'匯出<em>報告</em>',pdf:'PDF 報告',xls:'Excel 報告',
 noVideo:'請先選擇影片檔案',cantGrab:'此處無法截圖',saved:'已儲存',deleted:'已刪除',
 lbNote:'備註',lbPhrases:'常用片語',lbSev:'嚴重度',lbCat:'分類',
-dPen:'✎ 畫筆',dUndo:'復原',dClear:'清除',dDone:'完成',dAnnotate:'✎ 在截圖上標註',
+dPen:'✎ 畫筆',dUndo:'復原',dClear:'清除',dDone:'完成',dAnnotate:'✎ 在截圖上標註',anTitle:'標註<em>截圖</em>',anPen:'畫筆',anEraser:'橡皮擦',anS:'細',anM:'中',anL:'粗',refAddImg:'＋ 加入圖片',refImg:'參考圖片',
 mInfo:'影片資訊',mKeys:'快捷鍵',mClose:'關閉影片',
 hkPlay:'播放 · 暫停',hkShuttle:'倒退／前進 10 秒',hkSeek:'倒退／前進 5 秒',hkFrame:'逐幀',hkMark:'新增標記',
 inRes:'解析度',inDur:'片長',
@@ -502,7 +539,7 @@ empty:'No marks yet.<br>Watch quietly, press M to leave the first.',confirmT:'Pl
 infoT:'Video <em>info</em>',keysT:'Short<em>cuts</em>',expT:'Export <em>report</em>',pdf:'PDF report',xls:'Excel report',
 noVideo:'Please select a video first',cantGrab:'Cannot capture here',saved:'Saved',deleted:'Deleted',
 lbNote:'Note',lbPhrases:'Phrases',lbSev:'Severity',lbCat:'Category',
-dPen:'✎ Pen',dUndo:'Undo',dClear:'Clear',dDone:'Done',dAnnotate:'✎ Annotate screenshot',
+dPen:'✎ Pen',dUndo:'Undo',dClear:'Clear',dDone:'Done',dAnnotate:'✎ Annotate screenshot',anTitle:'Annotate <em>screenshot</em>',anPen:'Pen',anEraser:'Eraser',anS:'Fine',anM:'Medium',anL:'Bold',refAddImg:'+ Add image',refImg:'Reference image',
 mInfo:'Video info',mKeys:'Shortcuts',mClose:'Close video',
 hkPlay:'Play · Pause',hkShuttle:'Back / Fwd 10s',hkSeek:'Back / Fwd 5s',hkFrame:'Frame step',hkMark:'New mark',
 inRes:'Resolution',inDur:'Duration',
@@ -514,7 +551,7 @@ function applyLang(){
   $('#tExport').textContent=T('export');$('#projName').placeholder=T('projPh');
   $('#btnMark').textContent=T('markBtn');$('#aCancel').textContent=T('cancel');$('#aSave').textContent=T('save');
   $('#aRefToggle span').textContent=T('ref');$('#aNote').placeholder=T('notePh');$('#aRefUrl').placeholder=T('refPh');
-  renderPhrases();renderSev();renderCats();renderJournal();
+  renderPhrases();renderSev();renderCats();renderJournal();renderAnTools();
   document.documentElement.lang=LANG.cur==='zh'?'zh-Hant':'en';
 }
 
@@ -612,10 +649,13 @@ document.addEventListener('keydown',e=>{
   else if(k===',')video.currentTime-=1/detectedFps;
   else if(k==='.')video.currentTime+=1/detectedFps;
   else if(k==='m'||k==='M')openAtelier();
-  else if(k==='Escape')closeAll();
+  else if(k==='Escape'){
+    if($('#anModal').style.display!=='none')closeAnModal();
+    else closeAll();
+  }
 });
 function closeAll(){
-  closeAtelier();closeJournal();
+  closeAnModal();closeAtelier();closeJournal();
   document.querySelectorAll('.nmodal').forEach(m=>m.style.display='none');
   $('#veil').classList.remove('on');$('#topMenu').style.display='none';
 }
@@ -645,6 +685,7 @@ function openAtelier(idx=-1){
   pendingShot=idx>=0&&m.shot?m.shot:(captureShot()||'');
   $('#aShot').src=pendingShot;
   $('#aShot').style.display=pendingShot?'block':'none';
+  $('#aDrawRow').style.display=pendingShot?'':'none';
   $('#aNote').value=m?m.note:'';
   $('#aRefList').innerHTML='';
   (m?m.refs:[]).forEach(r=>addRefRow(r));
@@ -679,7 +720,7 @@ function currentSev(){return +document.querySelector('#aSev input:checked').valu
 function currentCat(){const c=document.querySelector('#aCats input:checked');return c?c.value:'';}
 $('#aSave').onclick=()=>{
   const note=$('#aNote').value.trim();
-  const refs=[...document.querySelectorAll('#aRefList .a-ref-item')].map(el=>({url:el.dataset.url,img:el.dataset.img||''}));
+  const refs=[...document.querySelectorAll('#aRefList .a-ref-item')].map(el=>({url:el.dataset.url,img:el.dataset.img||'',name:el.dataset.name||''}));
   const entry={t:pendingT,tc:fmt(pendingT),note,sev:currentSev(),cat:currentCat(),refs,shot:pendingShot,created:Date.now()};
   if(editIndex>=0)marks[editIndex]=entry;else marks.push(entry);
   marks.sort((a,b)=>a.t-b.t);
@@ -718,12 +759,21 @@ function renderCats(){
 /* 參考資料 */
 function addRefRow(r){
   const d=document.createElement('div');d.className='a-ref-item';
-  d.dataset.url=r.url;d.dataset.img=r.img||'';
-  d.innerHTML=`${r.img?`<img src="${r.img}">`:''}<a href="${r.url}" target="_blank">${r.url}</a>
+  d.dataset.url=r.url||'';d.dataset.img=r.img||'';d.dataset.name=r.name||'';
+  d.innerHTML=`${r.img?`<img src="${r.img}">`:''}${r.url?`<a href="${r.url}" target="_blank">${r.url}</a>`:`<span class="a-ref-name">${escapeHtml(r.name||T('refImg'))}</span>`}
     <button title="remove"><svg viewBox="0 0 24 24" width="12" height="12" style="stroke:currentColor;fill:none;stroke-width:1.4"><path d="M6.6 6.6l10.8 10.8M17.4 6.6L6.6 17.4"/></svg></button>`;
   d.querySelector('button').onclick=()=>d.remove();
   $('#aRefList').appendChild(d);
 }
+$('#aRefImgBtn').onclick=()=>$('#aRefFile').click();
+$('#aRefFile').onchange=e=>{
+  [...e.target.files].forEach(f=>{
+    const rd=new FileReader();
+    rd.onload=()=>addRefRow({url:'',img:rd.result,name:f.name});
+    rd.readAsDataURL(f);
+  });
+  e.target.value='';
+};
 $('#aRefUrl').addEventListener('keydown',e=>{
   if(e.key==='Enter'&&e.target.value.trim()){
     addRefRow({url:e.target.value.trim()});e.target.value='';
@@ -734,46 +784,104 @@ $('#aRefToggle').onclick=()=>{
   gsap.to(body,{height:open?'auto':0,opacity:open?1:0,duration:.6,ease:'expo.out'});
 };
 
-/* ---------- 繪圖標註 ---------- */
-let drawing=false,drawStrokes=[],drawCtx=null;
-$('#aDrawBtn').onclick=()=>{
-  const img=$('#aShot'),cv=$('#drawCanvas');
-  cv.width=img.naturalWidth;cv.height=img.naturalHeight;
-  cv.style.display='block';$('#drawBar').classList.add('on');$('#aDrawBtn').style.display='none';
-  drawCtx=cv.getContext('2d');drawCtx.lineWidth=Math.max(3,cv.width/240);
-  drawCtx.lineCap='round';drawCtx.strokeStyle='#c9a86f';drawStrokes=[];
-  gsap.fromTo('#drawBar',{opacity:0,y:8},{opacity:1,y:0,duration:.5,ease:'expo.out'});
-};
-function drawPos(e){const r=$('#drawCanvas').getBoundingClientRect();
-  return [(e.clientX-r.left)/r.width*$('#drawCanvas').width,(e.clientY-r.top)/r.height*$('#drawCanvas').height];}
-$('#drawCanvas').addEventListener('pointerdown',e=>{drawing=true;drawCtx.beginPath();
-  const [x,y]=drawPos(e);drawCtx.moveTo(x,y);drawStrokes.push([[x,y]]);e.target.setPointerCapture(e.pointerId);});
-$('#drawCanvas').addEventListener('pointermove',e=>{if(!drawing)return;
-  const [x,y]=drawPos(e);drawCtx.lineTo(x,y);drawCtx.stroke();
-  drawStrokes[drawStrokes.length-1].push([x,y]);});
-$('#drawCanvas').addEventListener('pointerup',()=>drawing=false);
-$('#drawUndo').onclick=()=>{
-  drawStrokes.pop();const cv=$('#drawCanvas');drawCtx.clearRect(0,0,cv.width,cv.height);
-  drawStrokes.forEach(s=>{drawCtx.beginPath();s.forEach(([x,y],i)=>i?drawCtx.lineTo(x,y):drawCtx.moveTo(x,y));drawCtx.stroke();});
-};
-$('#drawClear').onclick=()=>{drawStrokes=[];drawCtx.clearRect(0,0,$('#drawCanvas').width,$('#drawCanvas').height);};
-$('#drawDone').onclick=()=>{
-  /* 合併到底圖 */
-  const img=$('#aShot'),cv=$('#drawCanvas');
+/* ---------- 截圖標註：獨立畫面 ---------- */
+const AN_COLORS=['#c9a86f','#d4695e','#f5eedd','#171208','#7ba0c4'];
+const AN_SIZES=[['S',360],['M',240],['L',120]];
+let anColor='#c9a86f',anSize='M',anTool='pen',anStrokes=[],anCtx=null,anDrawing=false;
+function renderAnTools(){
+  $('#anColors').innerHTML='';
+  AN_COLORS.forEach(c=>{
+    const b=document.createElement('button');b.className='an-sw'+(c===anColor?' on':'');
+    b.style.background=c;b.title=c;
+    b.onclick=()=>{anColor=c;anTool='pen';syncAnTools();};
+    $('#anColors').appendChild(b);
+  });
+  $('#anSizes').innerHTML='';
+  AN_SIZES.forEach(([k])=>{
+    const b=document.createElement('button');b.className='draw-tool'+(k===anSize?' on':'');
+    b.textContent=T('an'+k);
+    b.onclick=()=>{anSize=k;syncAnTools();};
+    $('#anSizes').appendChild(b);
+  });
+  syncAnTools();
+}
+function syncAnTools(){
+  document.querySelectorAll('#anColors .an-sw').forEach((b,i)=>b.classList.toggle('on',AN_COLORS[i]===anColor));
+  document.querySelectorAll('#anSizes .draw-tool').forEach((b,i)=>b.classList.toggle('on',AN_SIZES[i][0]===anSize));
+  $('#anPen').classList.toggle('on',anTool==='pen');
+  $('#anEraser').classList.toggle('on',anTool==='eraser');
+}
+function anWidth(){return Math.max(2,$('#anCanvas').width/AN_SIZES.find(s=>s[0]===anSize)[1]);}
+function anFit(){
+  const st=$('#anStage'),img=$('#anShot');
+  if(!img.naturalWidth)return;
+  const s=Math.min(st.clientWidth/img.naturalWidth,st.clientHeight/img.naturalHeight,1);
+  const w=Math.max(1,Math.round(img.naturalWidth*s)),h=Math.max(1,Math.round(img.naturalHeight*s));
+  img.style.width=w+'px';img.style.height=h+'px';
+  $('#anWrap').style.width=w+'px';$('#anWrap').style.height=h+'px';
+}
+function openAnModal(){
+  if(!pendingShot){toast(T('cantGrab'));return;}
+  const img=$('#anShot');img.src=pendingShot;
+  const open=()=>{
+    const cv=$('#anCanvas');
+    cv.width=img.naturalWidth;cv.height=img.naturalHeight;
+    anCtx=cv.getContext('2d');anCtx.lineCap='round';anStrokes=[];anDrawing=false;
+    $('#anModal').style.display='flex';
+    anFit();renderAnTools();
+  };
+  if(img.complete&&img.naturalWidth)open();
+  else img.onload=open;
+}
+function closeAnModal(){
+  if($('#anModal').style.display==='none')return;
+  $('#anModal').style.display='none';
+}
+function anPos(e){const r=$('#anCanvas').getBoundingClientRect();
+  return [(e.clientX-r.left)/r.width*$('#anCanvas').width,(e.clientY-r.top)/r.height*$('#anCanvas').height];}
+function anRedraw(){
+  const cv=$('#anCanvas');
+  anCtx.clearRect(0,0,cv.width,cv.height);
+  anStrokes.forEach(s=>{
+    anCtx.strokeStyle=s.color;anCtx.lineWidth=s.width;anCtx.lineCap='round';
+    anCtx.globalCompositeOperation=s.erase?'destination-out':'source-over';
+    anCtx.beginPath();s.pts.forEach(([x,y],i)=>i?anCtx.lineTo(x,y):anCtx.moveTo(x,y));anCtx.stroke();
+  });
+  anCtx.globalCompositeOperation='source-over';
+}
+$('#anCanvas').addEventListener('pointerdown',e=>{
+  anDrawing=true;
+  const [x,y]=anPos(e);
+  anStrokes.push({pts:[[x,y]],color:anColor,width:anWidth(),erase:anTool==='eraser'});
+  e.target.setPointerCapture(e.pointerId);
+});
+$('#anCanvas').addEventListener('pointermove',e=>{
+  if(!anDrawing)return;
+  const [x,y]=anPos(e);
+  const s=anStrokes[anStrokes.length-1];s.pts.push([x,y]);
+  anCtx.strokeStyle=s.color;anCtx.lineWidth=s.width;anCtx.lineCap='round';
+  anCtx.globalCompositeOperation=s.erase?'destination-out':'source-over';
+  anCtx.beginPath();
+  const pr=s.pts[s.pts.length-2];anCtx.moveTo(pr[0],pr[1]);anCtx.lineTo(x,y);anCtx.stroke();
+  anCtx.globalCompositeOperation='source-over';
+});
+$('#anCanvas').addEventListener('pointerup',()=>anDrawing=false);
+$('#anPen').onclick=()=>{anTool='pen';syncAnTools();};
+$('#anEraser').onclick=()=>{anTool='eraser';syncAnTools();};
+$('#anUndo').onclick=()=>{anStrokes.pop();anRedraw();};
+$('#anClear').onclick=()=>{anStrokes=[];anCtx.clearRect(0,0,$('#anCanvas').width,$('#anCanvas').height);};
+$('#aDrawBtn').onclick=openAnModal;
+$('#anClose').onclick=closeAnModal;
+$('#anCancel').onclick=closeAnModal;
+$('#anDone').onclick=()=>{
+  const img=$('#anShot'),cv=$('#anCanvas');
   const out=document.createElement('canvas');out.width=cv.width;out.height=cv.height;
   const c=out.getContext('2d');c.drawImage(img,0,0);c.drawImage(cv,0,0);
   pendingShot=out.toDataURL('image/jpeg',.85);
   $('#aShot').src=pendingShot;
-  cv.style.display='none';$('#drawBar').classList.remove('on');$('#aDrawBtn').style.display='';
-  toast(T('saved'));
+  closeAnModal();
 };
-/* 開啟 Atelier 時重置繪圖 */
-const _openAtelier=openAtelier;
-openAtelier=function(idx=-1){
-  _openAtelier(idx);
-  $('#drawCanvas').style.display='none';$('#drawBar').classList.remove('on');$('#aDrawBtn').style.display='';
-  drawStrokes=[];
-};
+window.addEventListener('resize',()=>{if($('#anModal').style.display!=='none')anFit();});
 
 /* ---------- Journal ---------- */
 function openJournal(){
@@ -935,8 +1043,16 @@ async function exportPdf(){
     if(m.shot){try{sz=await shotSize(m.shot);}catch(e){}}
     const portrait=!!m.shot&&sz.h>=sz.w;
     const TW=portrait?CW-70:CW;
+    /* 先設為渲染字體再量字，否則行數算少、渲染時超出頁面 */
+    sSerif(13);
     const nl=doc.splitTextToSize(m.note||'—',TW);
-    const th=nl.length*6.5+6+10+((m.refs&&m.refs.length)?6+m.refs.length*5:0);
+    sSans(8);
+    const refLines=[];
+    (m.refs||[]).forEach(r=>{
+      if(r.url)refLines.push(...doc.splitTextToSize(r.url,TW));
+      else if(r.img)refLines.push(...doc.splitTextToSize(`${T('refImg')}${r.name?' '+r.name:''}`,TW));
+    });
+    const th=nl.length*6.5+6+10+(refLines.length?6+refLines.length*5:0);
     let disp={w:0,h:0}, blockH;
     if(portrait){
       disp=fitBox(sz.w,sz.h,62,110);
@@ -963,10 +1079,10 @@ async function exportPdf(){
       doc.text(nl,tx,ty);ty+=nl.length*6.5+6;
       doc.setTextColor(...GREY);sSans(9);
       doc.text(`${m.cat}   ·   ${T('sev')[m.sev]}`,tx,ty);ty+=10;
-      if(m.refs&&m.refs.length){
+      if(refLines.length){
         doc.setTextColor(...GOLD);sSans(8);doc.text('R E F E R E N C E S',tx,ty);ty+=6;
         doc.setTextColor(...GREY);
-        m.refs.forEach(r=>{doc.text(r.url,tx,ty);ty+=5;});
+        refLines.forEach(l=>{doc.text(l,tx,ty);ty+=5;});
       }
     }else{
       /* 上圖下文 */
@@ -981,10 +1097,10 @@ async function exportPdf(){
       doc.text(nl,M,ty);ty+=nl.length*6.5+6;
       doc.setTextColor(...GREY);sSans(9);
       doc.text(`${m.cat}   ·   ${T('sev')[m.sev]}`,M,ty);ty+=10;
-      if(m.refs&&m.refs.length){
+      if(refLines.length){
         doc.setTextColor(...GOLD);sSans(8);doc.text('R E F E R E N C E S',M,ty);ty+=6;
         doc.setTextColor(...GREY);
-        m.refs.forEach(r=>{doc.text(r.url,M,ty);ty+=5;});
+        refLines.forEach(l=>{doc.text(l,M,ty);ty+=5;});
       }
     }
     y=by+blockH+GAP;
