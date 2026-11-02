@@ -548,7 +548,7 @@ let detectedFps=30, hideTimer=null;
 
 /* ---------- i18n ---------- */
 const I18N={
-zh:{open:'開啟影片',journal:'手札',export:'匯出',projPh:'專案名稱',newMark:'新增標記',editMark:'編輯標記',
+zh:{open:'開啟影片',journal:'手札',export:'匯出',projPh:'請先輸入專案名稱',needName:'請先在左上角輸入「專案名稱」，才能匯出報告',newMark:'新增標記',editMark:'編輯標記',
 noteTitle:'記下<em>這個</em>瞬間',editTitle:'重新審視<em>這個</em>瞬間',
 notePh:'需要留意的地方…',phrases:['字幕錯字，請確認','聲音忽大忽小','畫面過曝','剪接節奏太快','色調偏冷','音樂版權確認'],
 sev:['必須修改','建議修改','僅提醒'],
@@ -562,7 +562,7 @@ mInfo:'影片資訊',mKeys:'快捷鍵',mClose:'關閉影片',
 hkPlay:'播放 · 暫停',hkShuttle:'倒退／前進 10 秒',hkSeek:'倒退／前進 5 秒',hkFrame:'逐幀',hkMark:'新增標記',
 inRes:'解析度',inDur:'片長',
 dzTitle:'看見的<em>藝術</em>。',dzSub:'安靜的影片審片工坊。<br>不上傳，不留痕跡。',dzBtn:'選擇影片',dzHint:'MP4 · MOV · WEBM — 拖放至任意處'},
-en:{open:'Open',journal:'Journal',export:'Export',projPh:'Project name',newMark:'New mark',editMark:'Edit mark',
+en:{open:'Open',journal:'Journal',export:'Export',projPh:'Enter project name first',needName:'Please enter a Project Name (top-left) before exporting',newMark:'New mark',editMark:'Edit mark',
 noteTitle:'Note <em>this</em> moment',editTitle:'Revisit <em>this</em> moment',
 notePh:'What needs attention…',phrases:['Subtitle typo, check','Audio level uneven','Overexposed','Cut too fast','Grade too cold','Music rights check'],
 sev:['Must fix','Suggest','Note'],
@@ -1101,8 +1101,23 @@ function toJpeg(src,maxSide=800){return new Promise((res,rej)=>{
   };
   im.onerror=rej;im.src=src;
 });}
+/* 專案名稱防呆（舊版機制）：未輸入就擋下匯出、紅框＋聚焦提示 */
+function projNameOk(){
+  const inp=$('#projName');
+  if(!inp.value.trim()){
+    inp.style.borderColor='#d4695e';
+    wakeUI();inp.focus();
+    toast(T('needName'));
+    return false;
+  }
+  inp.style.borderColor='';
+  return true;
+}
+$('#projName').addEventListener('input',()=>{$('#projName').style.borderColor='';});
+const safeFileName=s=>s.replace(/[\\/:*?"<>|]/g,'_').trim();
 async function exportPdf(){
   if(!marks.length){toast(T('noVideo'));return;}
+  if(!projNameOk())return;
   toast('Preparing…');
   const ok=await loadLib('lib/jspdf.umd.min.js','jspdf')||await loadLib('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js','jspdf');
   if(!ok){toast('PDF library failed');return;}
@@ -1254,11 +1269,12 @@ async function exportPdf(){
     y=by+blockH+GAP;
     firstOnPage=false;
   }
-  doc.save(`${proj}_${Date.now()}.pdf`);
+  doc.save(`${safeFileName(proj)}.pdf`);
   toast(T('saved'));
 }
 async function exportXlsx(){
   if(!marks.length){toast(T('noVideo'));return;}
+  if(!projNameOk())return;
   toast('Preparing…');
   const ok=await loadLib('lib/exceljs.min.js','ExcelJS')||await loadLib('https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js','ExcelJS');
   if(!ok){toast('Excel library failed');return;}
@@ -1342,7 +1358,7 @@ async function exportXlsx(){
   const buf=await wb.xlsx.writeBuffer();
   const blob=new Blob([buf],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
   const a=document.createElement('a');a.href=URL.createObjectURL(blob);
-  a.download=`${proj}_${Date.now()}.xlsx`;a.click();
+  a.download=`${safeFileName(proj)}.xlsx`;a.click();
   toast(T('saved'));
 }
 
@@ -1387,6 +1403,7 @@ $('#mLang').onclick=()=>{
 $('#tExport').onclick=()=>{
   $('#topMenu').style.display='none';
   if(!marks.length){toast(T('noVideo'));return;}
+  if(!projNameOk())return;
   confirmDlg(T('expT'),()=>{});
   /* 直接提供兩個選項 */
   $('#confirmTitle').innerHTML=T('expT');
