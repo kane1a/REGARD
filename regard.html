@@ -348,6 +348,8 @@ em{margin-right:.06em}
   background:var(--coal2);border:1px solid var(--hairline);color:var(--bone);
   font-size:12px;letter-spacing:.14em;padding:14px 28px;border-radius:30px;opacity:0;white-space:nowrap;
 }
+#toast.interactive{pointer-events:auto}
+#toast a{color:var(--champagne);text-decoration:underline;margin-left:8px;cursor:pointer}
 #confirm .ncard{text-align:center}
 #confirmMsg{color:var(--bone-dim);font-size:14px;line-height:2;margin-bottom:30px;font-weight:300}
 .ic{stroke:currentColor;fill:none;stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round}
@@ -563,7 +565,7 @@ markBtn:'標記此刻',save:'儲存標記',cancel:'取消',confirmBtn:'確定',c
 empty:'尚無標記。<br>靜靜觀看，按下 M 留下第一筆。',confirmT:'請<em>確認</em>',delMsg:'確定刪除這筆標記？',changeMsg:'關閉影片將清空目前標記，繼續？',newVideoWarn:'載入新影片將會清空目前 {n} 則標記，確定繼續？',discardMsg:'放棄這筆標記？',
 infoT:'影片<em>資訊</em>',keysT:'快捷<em>鍵</em>',expT:'匯出<em>報告</em>',pdf:'PDF 報告',xls:'Excel 報告',
 noVideo:'請先選擇影片檔案',noMarks:'尚無標記可匯出',cantGrab:'此處無法截圖',saved:'已儲存',deleted:'已刪除',
-expPrep:'正在準備匯出…',expFont:'正在載入中文字型…',expImg:'正在處理截圖 ({i}/{n})…',expBuild:'正在產生檔案…',
+expPrep:'正在準備匯出…',expFont:'正在載入中文字型…',expImg:'正在處理截圖 ({i}/{n})…',expBuild:'正在產生檔案…',expDone:'已匯出',expManual:'點此下載',expFail:'匯出失敗',
 lbNote:'備註',lbPhrases:'常用片語',lbSev:'嚴重度',
 dPen:'✎ 畫筆',dUndo:'復原',dClear:'清除',dDone:'完成',dAnnotate:'✎ 在截圖上標註',anTitle:'標註<em>截圖</em>',anPen:'畫筆',anEraser:'橡皮擦',anS:'細',anM:'中',anL:'粗',refAddImg:'＋ 加入圖片',refImg:'參考圖片',toolPen:'畫筆',toolLine:'直線',toolRect:'矩形',toolEllipse:'圓形',toolArrow:'箭頭',toolEraser:'橡皮擦',toolUndo:'復原',toolClear:'清除',toolCancel:'取消',toolDone:'完成',
 mInfo:'影片資訊',mKeys:'快捷鍵',mClose:'關閉影片',
@@ -578,7 +580,7 @@ markBtn:'Mark moment',save:'Save mark',cancel:'Cancel',confirmBtn:'Confirm',clos
 empty:'No marks yet.<br>Watch quietly, press M to leave the first.',confirmT:'Please <em>confirm</em>',delMsg:'Delete this mark?',changeMsg:'Closing video clears current marks. Continue?',newVideoWarn:'Loading a new video will clear {n} existing mark(s). Continue?',discardMsg:'Discard this mark?',
 infoT:'Video <em>info</em>',keysT:'Short<em>cuts</em>',expT:'Export <em>report</em>',pdf:'PDF report',xls:'Excel report',
 noVideo:'Please select a video first',noMarks:'No marks to export',cantGrab:'Cannot capture here',saved:'Saved',deleted:'Deleted',
-expPrep:'Preparing export…',expFont:'Loading CJK font…',expImg:'Processing screenshots ({i}/{n})…',expBuild:'Generating file…',
+expPrep:'Preparing export…',expFont:'Loading CJK font…',expImg:'Processing screenshots ({i}/{n})…',expBuild:'Generating file…',expDone:'Exported',expManual:'Download',expFail:'Export failed',
 lbNote:'Note',lbPhrases:'Phrases',lbSev:'Severity',
 dPen:'✎ Pen',dUndo:'Undo',dClear:'Clear',dDone:'Done',dAnnotate:'✎ Annotate screenshot',anTitle:'Annotate <em>screenshot</em>',anPen:'Pen',anEraser:'Eraser',anS:'Fine',anM:'Medium',anL:'Bold',refAddImg:'+ Add image',refImg:'Reference image',toolPen:'Pen',toolLine:'Line',toolRect:'Rectangle',toolEllipse:'Ellipse',toolArrow:'Arrow',toolEraser:'Eraser',toolUndo:'Undo',toolClear:'Clear',toolCancel:'Cancel',toolDone:'Done',
 mInfo:'Video info',mKeys:'Shortcuts',mClose:'Close video',
@@ -631,6 +633,7 @@ function loadVideo(file){
   const doLoad=()=>{
     if(currentVideoUrl){try{URL.revokeObjectURL(currentVideoUrl);}catch(e){}}
     marks=[];editIndex=-1;pendingShot='';
+    $('#projName').value='';$('#projName').style.borderColor='';
     closeAll();renderJournal();renderDiamonds();
     $('#fileInput').value='';
     currentVideoUrl=URL.createObjectURL(file);
@@ -1128,9 +1131,9 @@ $('#cfNo').onclick=()=>{
 };
 
 /* ---------- Toast ---------- */
-let toastTl=null;
+let toastTl=null, lastExportUrl=null, lastExportTimer=null;
 function toast(msg,sticky=false){
-  const t=$('#toast');t.textContent=msg;
+  const t=$('#toast');t.classList.remove('interactive');t.textContent=msg;
   if(toastTl)toastTl.kill();
   if(sticky){
     toastTl=gsap.to(t,{opacity:1,y:0,duration:.25,ease:'expo.out'});
@@ -1139,6 +1142,26 @@ function toast(msg,sticky=false){
       .fromTo(t,{opacity:0,y:12},{opacity:1,y:0,duration:.5,ease:'expo.out'})
       .to(t,{opacity:0,y:8,duration:.5,ease:'expo.in'},'+=1.6');
   }
+}
+function downloadBlob(blob,filename){
+  if(lastExportUrl){try{URL.revokeObjectURL(lastExportUrl);}catch(e){}}
+  if(lastExportTimer)clearTimeout(lastExportTimer);
+  const url=URL.createObjectURL(blob);
+  lastExportUrl=url;
+  lastExportTimer=setTimeout(()=>{if(lastExportUrl===url){try{URL.revokeObjectURL(url);}catch(e){}lastExportUrl=null;}},300000);
+  const a=document.createElement('a');
+  a.href=url;a.download=filename;a.rel='noopener';a.style.display='none';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  /* 若瀏覽器（如 Brave）阻擋連續自動下載，提供可直接點擊的手動下載連結 */
+  const t=$('#toast');
+  t.innerHTML=`${escapeHtml(T('expDone'))}<a href="${url}" download="${escapeHtml(filename)}" rel="noopener">${escapeHtml(T('expManual'))}</a>`;
+  t.classList.add('interactive');
+  if(toastTl)toastTl.kill();
+  toastTl=gsap.timeline()
+    .fromTo(t,{opacity:0,y:12},{opacity:1,y:0,duration:.4,ease:'expo.out'})
+    .to(t,{opacity:0,y:8,duration:.5,ease:'expo.in',onComplete:()=>t.classList.remove('interactive')},'+=7');
 }
 
 /* ============================================================
@@ -1383,9 +1406,12 @@ async function exportPdf(){
       y=endY+GAP;
       firstOnPage=false;
     }
-    toast(T('expBuild'),true);await yieldFrame();
-    doc.save(`${safeFileName(proj)}_Feedback_${todayStr()}.pdf`);
-    toast(T('saved'));
+    toast(T('expBuild'),true);
+    const pdfBlob=doc.output('blob');
+    downloadBlob(pdfBlob,`${safeFileName(proj)}_Feedback_${todayStr()}.pdf`);
+  }catch(err){
+    console.error('exportPdf error:',err);
+    toast(`${T('expFail')}: ${err&&err.message?err.message:err}`);
   }finally{
     isExporting=false;
   }
@@ -1480,14 +1506,13 @@ async function exportXlsx(){
       }
     }
     ws.views=[{state:'frozen',ySplit:4}];
-    toast(T('expBuild'),true);await yieldFrame();
+    toast(T('expBuild'),true);
     const buf=await wb.xlsx.writeBuffer();
     const blob=new Blob([buf],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
-    const url=URL.createObjectURL(blob);
-    const a=document.createElement('a');a.href=url;
-    a.download=`${safeFileName(proj)}_Feedback_${todayStr()}.xlsx`;a.click();
-    setTimeout(()=>URL.revokeObjectURL(url),5000);
-    toast(T('saved'));
+    downloadBlob(blob,`${safeFileName(proj)}_Feedback_${todayStr()}.xlsx`);
+  }catch(err){
+    console.error('exportXlsx error:',err);
+    toast(`${T('expFail')}: ${err&&err.message?err.message:err}`);
   }finally{
     isExporting=false;
   }
@@ -1523,6 +1548,7 @@ $('#mClose').onclick=()=>{
     video.pause();video.removeAttribute('src');video.load();
     if(currentVideoUrl){try{URL.revokeObjectURL(currentVideoUrl);}catch(e){}currentVideoUrl=null;}
     $('#fileInput').value='';
+    $('#projName').value='';$('#projName').style.borderColor='';
     marks=[];editIndex=-1;pendingShot='';renderJournal();renderDiamonds();
     $('#dropzone').style.display='flex';
     if(window._startParticles)window._startParticles();
